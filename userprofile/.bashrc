@@ -1,0 +1,12 @@
+alias dir='ls -l'
+alias gs='git status'
+alias gr='git remote'
+alias grv='git remote -v'
+alias quit='exit'
+alias dev-new='cd /c/projects/psh/dev-new'
+alias dev-sp='cd /c/projects/psh/dev-sp'
+alias gb='git branch'
+alias gbr='git branch -r'
+alias gunpushed='git unpushed'
+alias junction='cd /c/projects/psh/hpx'
+junction

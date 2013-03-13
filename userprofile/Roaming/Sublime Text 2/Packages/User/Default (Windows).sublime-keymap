@@ -1,0 +1,7 @@
+[
+	{ "keys": ["shift+f6"], "command": "toggle_setting", "args": {"setting": "spell_check"}},
+	{ "keys": ["f6"], "command": "build" },
+	{ "keys": ["ctrl+k,c"], "command": "toggle_comment", "args": { "block": false } },
+	{ "keys": ["ctrl+k,u"], "command": "toggle_comment", "args": { "block": true } },
+	{ "keys": ["ctrl+shift+delete"],"command":"exec","args":{"cmd":["pskill","phantomjs"]}}
+]

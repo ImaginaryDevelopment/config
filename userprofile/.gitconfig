@@ -1,0 +1,37 @@
+[merge]
+	tool = diffmerge
+[user]
+	name = Brando
+	email = brandon.d'imperio@payspan.com
+[core]
+	autocrlf = true
+	editor = \"C:/Program Files (x86)/GitExtensions/GitExtensions.exe\" fileeditor
+[diff]
+	guitool = winmerge
+	tool = diffmerge
+[difftool.winmerge]
+	path = C:/Program Files (x86)/WinMerge/winmergeu.exe
+	cmd = \"C:/Program Files (x86)/WinMerge/winmergeu.exe\" -e -u \"$LOCAL\" \"$REMOTE\"
+[mergetool.WinMerge]
+	path = C:/Program Files (x86)/WinMerge/winmergeu.exe
+	cmd = \"C:/Program Files (x86)/WinMerge/winmergeu.exe\" -e -ub -dl \"Base\" -dr \"Mine\" \"$MERGED\" \"$REMOTE\"
+[push]
+	default = current
+[alias]
+	unpushed = log --branches --not --remotes --oneline --simplify-by-decoration --decorate
+[mergetool "kdiff3"]
+	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
+[credential]
+	helper = !\"C:/Program Files (x86)/GitExtensions/GitCredentialWinStore/git-credential-winstore.exe\"
+[mergetool]
+	keepBackup = false
+[gui]
+	recentrepo = C:/Projects/trunk/Prototypes/PaySpan.Jms
+[mergetool "Sgdm"]
+	path = C:/Program Files/SourceGear/Common/DiffMerge/sgdm.exe
+	cmd = \"C:/Program Files/SourceGear/Common/DiffMerge/sgdm.exe\" /t1=\"Theirs $REMOTE\" /t2=Base /t3=\"Mine $LOCAL\" /r=$MERGED $REMOTE $BASE $LOCAL
+[mergetool "diffmerge"]
+	cmd = sgdm --merge --result=$MERGED $LOCAL $BASE $REMOTE
+	trustExitCode = true
+[difftool "diffmerge"]
+	cmd = diffmerge $LOCAL $REMOTE
