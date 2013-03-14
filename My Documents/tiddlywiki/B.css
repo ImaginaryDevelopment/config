@@ -1,0 +1,7 @@
+.bordered{
+	border: 1px solid black;
+}
+code,.code{
+	background-color: #eeeeee;
+	font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+}
