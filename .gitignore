@@ -25,3 +25,5 @@ userprofile/Roaming/Sublime Text 2/Settings/Session.sublime_session
 userprofile/Roaming/Sublime Text 2/Packages/*
 !userprofile/Roaming/Sublime Text 2/Packages/User/
 My Documents/SQL Server Management Studio/
+userprofile/Roaming/Hewlett-Packard/
+*.sublime_session

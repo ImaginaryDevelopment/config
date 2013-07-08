@@ -171,6 +171,24 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 	}
 	//public static class StringExtensions
 #region StringExtensions
+	public static bool IsMatch(this string text, string pattern, bool ignoreCase)
+	{
+    	return ignoreCase ? Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase) :
+        Regex.IsMatch(text, pattern);
+	}
+	public static byte[] ToByteArray(this string text)
+	{
+	    var encoding = new ASCIIEncoding();
+		return encoding.GetBytes(text);
+	}
+	///<summary>
+	///Assumes Ascii!
+	///</summary>
+	public static String ToStringFromBytes(this byte[] buffer)
+	{
+		var encoding = new ASCIIEncoding();
+	    return encoding.GetString(buffer);
+	}
 	public static FilePath AsFilePath(this string path){
 		return new FilePath(path);
 	}
