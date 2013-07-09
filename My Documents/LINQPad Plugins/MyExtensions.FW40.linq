@@ -46,6 +46,7 @@ public static class LinqOp{
    }
 
 }
+
 public static class MyExtensions
 {
 // Write custom extension methods here. They will be available to all queries.
@@ -75,6 +76,14 @@ public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
 	ps.WaitForExit(2000);
 	if(errors.Length>0) 	Util.Highlight(errors).Dump("errors");
 	return new StreamOuts(){ Errors=errors, Output=output };
+	}
+	#region xml related
+	
+	public static string GetAttribValOrNull(this XElement node, XName name){
+		var xa= node.Attribute(name);
+		if(xa==null)
+		return null;
+		return xa.Value;
 	}
 	
 	 public static XElement GetXElement(this XmlNode node)
@@ -162,6 +171,8 @@ public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
 		throw new InvalidOperationException
 			("element has been removed from its parent.");
 	}
+	
+	#endregion
 public static string ReadtoEndAndDispose(this StreamReader reader)
 	{
 		using(System.IO.StreamReader r=reader)
@@ -303,6 +314,13 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 	}
 #endregion
 	
+	#region Linqpad
+	public static T DumpIf<T>(this T val, Func<T,bool> predicate, string header=null){
+	if(predicate(val))
+		val.Dump(header);
+	return val;
+	}
+	#endregion
 }
 
 // You can also define non-static classes, enums, etc.
