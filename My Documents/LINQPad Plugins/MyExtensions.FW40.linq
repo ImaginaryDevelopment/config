@@ -3,6 +3,13 @@
 void Main()
 {
 	// Write code to test your extensions here. Press F5 to compile and run.
+	
+	
+	Debug.Assert( @"C:\program files\".AsFilePath().GetSegments().Count()==2);
+	Debug.Assert( @"C:\program files".AsFilePath().GetSegments().Count()==2);
+	Debug.Assert( @"\\vbcdapp1\c$".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
+	Debug.Assert( @"\\vbcdapp1\c$\".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
+	
 }
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
@@ -58,25 +65,23 @@ public static class MyExtensions
 	}
 	
 
-public static bool NextBool(this Random rnd)
+	public static bool NextBool(this Random rnd)
 	{
 		return rnd.NextDouble()>0.5;
 	}
-public static IEnumerable<T> Materialize<T>(this IEnumerable<T> set)
-	{
-	return set.ToArray();
-	}
-public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
+
+	public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
 	{
 		ps.StartInfo.Arguments=arguments;
-	ps.Start();
-	var output=ps.StandardOutput.ReadtoEndAndDispose();
-	var errors=ps.StandardError.ReadtoEndAndDispose();
+		ps.Start();
+		var output=ps.StandardOutput.ReadtoEndAndDispose();
+		var errors=ps.StandardError.ReadtoEndAndDispose();
 	
-	ps.WaitForExit(2000);
-	if(errors.Length>0) 	Util.Highlight(errors).Dump("errors");
-	return new StreamOuts(){ Errors=errors, Output=output };
+		ps.WaitForExit(2000);
+		if(errors.Length>0) 	Util.Highlight(errors).Dump("errors");
+		return new StreamOuts(){ Errors=errors, Output=output };
 	}
+	
 	#region xml related
 	
 	public static string GetAttribValOrNull(this XElement node, XName name){
@@ -173,7 +178,8 @@ public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
 	}
 	
 	#endregion
-public static string ReadtoEndAndDispose(this StreamReader reader)
+	
+	public static string ReadtoEndAndDispose(this StreamReader reader)
 	{
 		using(System.IO.StreamReader r=reader)
 		{
@@ -181,7 +187,8 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 		}
 	}
 	//public static class StringExtensions
-#region StringExtensions
+	#region StringExtensions
+
 	public static bool IsMatch(this string text, string pattern, bool ignoreCase)
 	{
     	return ignoreCase ? Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase) :
@@ -200,13 +207,10 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 		var encoding = new ASCIIEncoding();
 	    return encoding.GetString(buffer);
 	}
-	public static FilePath AsFilePath(this string path){
-		return new FilePath(path);
+	public static FilePathWrapper AsFilePath(this string path){
+		return new FilePathWrapper(path);
 	}
-	public static Hyperlinq ExplorerSelectLink(this FilePath path,string text){
-		var arguments= string.Format("/select,{0}",path.Path);
-		return new Hyperlinq( QueryLanguage.Expression, "Process.Start(\"Explorer.exe\",@\""+arguments+"\")",text);
-	}
+	
 	
 	public static string WrapWith(this string txt, string delimiter){
 		if(txt==null)
@@ -250,16 +254,22 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 		}
 		return result.ToString();
 	}
-
+	
+	public static string Before(this string text, string delimiter,StringComparison? comparison=null)
+	{
+		
+		return text.Substring(0,text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
+	}
+	
 	public static string BeforeOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
 			return text;
 		return text.Before(delimiter);
 	}
-	public static string AfterLast(this string text, string delimiter)
+	public static string AfterLast(this string text, string delimiter,StringComparison? comparison=null)
 	{
-		return text.Substring(text.LastIndexOf(delimiter)+delimiter.Length);
+		return text.Substring(text.LastIndexOf(delimiter, comparison?? StringComparison.CurrentCulture)+delimiter.Length);
 	}
 	public static string AfterLastOrSelf(this string text, string delimiter)
 	{
@@ -267,10 +277,7 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 		return text;
 		return text.AfterLast(delimiter);
 	}
-	public static string Before(this string text, string delimiter)
-	{
-		return text.Substring(0,text.IndexOf(delimiter));
-	}
+	
 	
 	public static string AfterOrSelf(this string text, string delimiter)
 	{
@@ -288,9 +295,9 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 	{
 		return !s.IsNullOrEmpty();
 	}
-	public static string After(this string text, string delimiter)
+	public static string After(this string text, string delimiter,StringComparison? comparison=null)
 	{
-		return text.Substring( text.IndexOf(delimiter)+delimiter.Length);
+		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
 	}
 	public static int StrComp(this String str1, String str2, bool ignoreCase)
 	{
@@ -300,7 +307,7 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
     {
         return s.StrComp(comparisonText, true) == 0;
     }
-#endregion StringExtensions
+	#endregion StringExtensions
 
 	//public static class EnumerableExtensions
 	#region EnumerableExtensions
@@ -312,6 +319,16 @@ public static string ReadtoEndAndDispose(this StreamReader reader)
 	{
 	return values.Aggregate ((s1,s2)=>s1+delimiter+s2);
 	}
+	
+	public static IEnumerable<T> Materialize<T>(this IEnumerable<T> set)
+	{
+	return set.ToArray();
+	}
+	
+	public static IEnumerable<T> Prepend<T>(this IEnumerable<T> values, T head){
+		return new[]{head}.Concat(values);
+	}
+	
 #endregion
 	
 	#region Linqpad
@@ -332,20 +349,52 @@ public string Errors{get;set;}
 public string Output{get;set;}
 }
 
-public class FilePath{
+public class PathWrapper{
+	public string RawPath{get;private set;}
+	
+	public PathWrapper(string rawPath){
+		RawPath=rawPath;
+	}
+	public IEnumerable<string> GetSegments(){
+		var seperators=new[]{System.IO.Path.DirectorySeparatorChar,System.IO.Path.AltDirectorySeparatorChar};
+		var first= string.Empty;
+		var path=RawPath;
+		if(RawPath.StartsWith(@"\\")){
+			first=@"\\";
+			path=path.Substring(2);
+		}
+		var splits=path.TrimEnd(seperators)
+		.Split(seperators);
+		if(first.IsNullOrEmpty())
+		return splits;
+		return new[]{ first+ splits.First()}.Concat(splits.Skip(1));
+	}
+	public  Hyperlinq AsExplorerSelectLink(string text){
+		var arguments= string.Format("/select,{0}",this.RawPath);
+		return new Hyperlinq( QueryLanguage.Expression, "Process.Start(\"Explorer.exe\",@\""+arguments+"\")",text);
+	}
+}
 
-	public string Path{get;private set;}
+public class FilePathWrapper:PathWrapper{
+
+	public FilePathWrapper(string path) :base(path){}
+	
 	public string ReadAllShared(){
-		using(var r=System.IO.File.Open(this.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-		using(var sr= new StreamReader(r,true)){
+		using(var r=System.IO.File.Open(this.RawPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+		using(var sr= new StreamReader(r,detectEncodingFromByteOrderMarks: true)){
 			return sr.ReadToEnd();
 		}
 	
 	}
 	
-	public FilePath(string path){
-		Path=path;
+	public DateTime GetLastWriteLocalTime(){
+		return System.IO.File.GetLastWriteTime(this.RawPath);
 	}
+	public DateTime GetLastWriteUtcTime(){
+		return System.IO.File.GetLastWriteTimeUtc(this.RawPath);
+	}
+	
+	
 }
 
 // You can also define non-static classes, enums, etc.
