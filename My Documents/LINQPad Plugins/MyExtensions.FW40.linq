@@ -331,8 +331,18 @@ public struct StreamOuts
 public string Errors{get;set;}
 public string Output{get;set;}
 }
+
 public class FilePath{
+
 	public string Path{get;private set;}
+	public string ReadAllShared(){
+		using(var r=System.IO.File.Open(this.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+		using(var sr= new StreamReader(r,true)){
+			return sr.ReadToEnd();
+		}
+	
+	}
+	
 	public FilePath(string path){
 		Path=path;
 	}
