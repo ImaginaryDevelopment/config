@@ -49,3 +49,10 @@ My Documents/Remote Assistance Logs/
 *.pfx
 *.docx
 My Documents/*.dat
+
+My Documents/IISExpress/Logs/
+My Documents/IISExpress/TraceLogFiles/
+My Documents/Fiddler2/
+userprofile/Roaming/Adobe/
+userprofile/Roaming/Sublime Text 2/Backup/
+userprofile/Roaming/vlc/
