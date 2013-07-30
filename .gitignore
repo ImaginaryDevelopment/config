@@ -27,9 +27,25 @@ userprofile/Roaming/Sublime Text 2/Packages/*
 My Documents/SQL Server Management Studio/
 userprofile/Roaming/Hewlett-Packard/
 *.sublime_session
-*.sublime-workspace
-userprofile/Roaming/Sublime Text 2/Backup/
-My Documents/IISExpress/TraceLogFiles/
-My Documents/IISExpress/Logs/
-userprofile/Roaming/Adobe/
-userprofile/Roaming/vlc/
+*.dll
+My Documents/ANNO 2070/
+*.rdp
+*.exe
+bin/
+My Documents/Unity/
+*.png
+*.gif
+obj/
+My Documents/Microsoft Roslyn CTP - June 2012/
+*.JPG
+*.avi
+My Documents/Remote Assistance Logs/
+*.jpg
+*.jpeg
+*.zip
+*.mp4
+*.tif
+*.pdf
+*.pfx
+*.docx
+My Documents/*.dat
