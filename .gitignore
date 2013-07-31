@@ -70,3 +70,15 @@ userprofile/Roaming/Ventrilo/
 userprofile/Roaming/TortoiseSVN/
 userprofile/Roaming/InstallShield Installation Information/
 userprofile/Roaming/DivX/
+*.ogg
+userprofile/Roaming/GameMaker-Studio/
+Cache/
+userprofile/Roaming/Quest Software/
+temp/
+*.wav
+cached/
+lib/
+libs/
+userprofile/Roaming/Yuuguu/
+npm-cache/
+*Game*
