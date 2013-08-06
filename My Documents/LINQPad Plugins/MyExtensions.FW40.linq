@@ -13,7 +13,8 @@ void Main()
 	Debug.Assert( @"C:\program files".AsFilePath().GetSegments().Count()==2);
 	Debug.Assert( @"\\vbcdapp1\c$".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
 	Debug.Assert( @"\\vbcdapp1\c$\".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
-	
+	Debug.Assert( 1.To(10).Aggregate((x,y)=>x+y)==1+2+3+4+5+6+7+8+9);
+	Debug.Assert(2.To(10).Aggregate((x,y)=>x+y)== 2+3+4+5+6+7+8+9);
 }
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
@@ -318,22 +319,34 @@ public static class MyExtensions
 
 	//public static class EnumerableExtensions
 	#region EnumerableExtensions
-
+	
+	public static IEnumerable<int> CumulativeSum(this IEnumerable<int> source){
+	//http://stackoverflow.com/a/4831908/57883
+		int sum=0;
+		foreach(var item in source){
+			sum+=item;
+			yield return sum;
+		}
+	}
 	///<summary>
 	/// MyExtensions! Delimit aggregate a list of strings
 	///</summary>
 	public static string Delimit(this IEnumerable<string> values, string delimiter)
 	{
-	return values.Aggregate ((s1,s2)=>s1+delimiter+s2);
+		return values.Aggregate ((s1,s2)=>s1+delimiter+s2);
 	}
 	
 	public static IEnumerable<T> Materialize<T>(this IEnumerable<T> set)
 	{
-	return set.ToArray();
+		return set.ToArray();
 	}
 	
 	public static IEnumerable<T> Prepend<T>(this IEnumerable<T> values, T head){
 		return new[]{head}.Concat(values);
+	}
+	
+	public static IEnumerable<int> To(this int i, int exclusiveEnd){
+		return Enumerable.Range(i,exclusiveEnd-i);
 	}
 	
 #endregion
