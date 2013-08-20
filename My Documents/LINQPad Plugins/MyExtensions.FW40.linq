@@ -371,7 +371,11 @@ public string Output{get;set;}
 
 public class PathWrapper{
 	public string RawPath{get;private set;}
-	
+	public string GetRelativePathTo(string otherPath){
+		var uri= new Uri(RawPath);
+		var otherUri= new Uri(otherPath);
+		return uri.MakeRelativeUri(otherUri).ToString().Replace("%20"," ");
+	}
 	public PathWrapper(string rawPath){
 		RawPath=rawPath;
 	}
