@@ -16,6 +16,54 @@ void Main()
 	Debug.Assert( 1.To(10).Aggregate((x,y)=>x+y)==1+2+3+4+5+6+7+8+9);
 	Debug.Assert(2.To(10).Aggregate((x,y)=>x+y)== 2+3+4+5+6+7+8+9);
 }
+
+///http://blogs.msdn.com/b/wesdyer/archive/2007/01/29/currying-and-partial-function-application.aspx
+///http://blogs.msdn.com/b/ericlippert/archive/2009/06/25/mmm-curry.aspx
+public static class LambdaOp{
+	public static Func<A, Func<B, R>> Curry<A, B, R>(this Func<A, B, R> f)
+	{
+  		return a => b => f(a, b);
+	}
+ 	public static Func<B,C, R> Apply<A, B,C, R>(this Func<A, B,C, R> f, A a)
+   	{
+    	return (b,c) => f(a, b,c);
+   	}
+   	public static Func<B, C,D, R> Apply<A, B, C,D, R>(this Func<A, B, C,D, R> f, A a)
+   	{
+    	return (b, c,d) => f(a, b, c,d);
+   	}
+	public static Func<B, R> Apply<A, B, R>(this Func<A, B, R> f, A a)
+	{
+  		return b => f(a, b);
+	}
+	public static Func<B, R> ApplyLast<A, B, R>(this Func<A, B, R> f, A a)
+	{
+  		return b => f(a, b);
+	}
+	//skip A for later
+	public static Func<B,C, D, A, R> Decline<A, B, C, D, R>(this Func<A, B, C, D, R> f)
+    {
+        return (b, c, d, a) => f(a, b, c, d);
+    }
+	//skip A for later
+	public static Func<B,C, A, R> Decline<A, B, C, R>(this Func<A, B, C, R> f)
+    {
+        return (b, c, a) => f(a, b, c);
+    }
+	//skip A for later
+   	public static Func< B, A, R> Decline<A, B,R>(this Func<A, B,R> f)
+   	{
+    	return (b, a) => f(a, b);
+	}
+	//http://blogs.msdn.com/b/csharpfaq/archive/2010/02/16/covariance-and-contravariance-faq.aspx
+	// implicit conversion between generic delegates is not supported until C# 4.0.
+	public static Func<C,B, R> Contravary<A, B, C, R>(this Func<A, B, R> f)
+            where C:A
+    {
+        return (b, c) => f(b,c);
+    }
+}
+
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
 	public static MethodInfo MethodOf<T>(Expression<Func<T>> expression) {
