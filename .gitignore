@@ -43,42 +43,19 @@ My Documents/Remote Assistance Logs/
 *.jpg
 *.jpeg
 *.zip
-My Documents/DEV/
 *.mp4
 *.tif
 *.pdf
-My Documents/HardwareHelper/
 *.pfx
 *.docx
 My Documents/*.dat
+
+My Documents/IISExpress/Logs/
+My Documents/IISExpress/TraceLogFiles/
+My Documents/Fiddler2/
 userprofile/Roaming/Adobe/
-userprofile/Roaming/Apple Computer/
-userprofile/Roaming/MonoDevelop-Unity-2.8/
-userprofile/Roaming/NVIDIA/
-userprofile/Roaming/vlc/
-userprofile/Roaming/LINQPad/RecentServers.txt
 userprofile/Roaming/Sublime Text 2/Backup/
-userprofile/Roaming/tangible T4 Editor 2010/
-userprofile/Roaming/Subversion/
-userprofile/Roaming/Notepad++/
-userprofile/Roaming/TS3Client/
-userprofile/Roaming/Mozilla/
-userprofile/Roaming/Unity/
-userprofile/Roaming/Winamp/
-userprofile/Roaming/Ustream Producer/
-userprofile/Roaming/Ventrilo/
-userprofile/Roaming/TortoiseSVN/
-userprofile/Roaming/InstallShield Installation Information/
-userprofile/Roaming/DivX/
-*.ogg
-userprofile/Roaming/GameMaker-Studio/
-Cache/
-userprofile/Roaming/Quest Software/
-temp/
-*.wav
-cached/
-lib/
-libs/
-userprofile/Roaming/Yuuguu/
-npm-cache/
-*Game*
+userprofile/Roaming/vlc/
+userprofile/Roaming/npm-cache/
+userprofile/Roaming/npm/node_modules
+userprofile/Roaming/ChocolateyGUI/Logs/

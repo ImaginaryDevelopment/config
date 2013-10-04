@@ -1,0 +1,13 @@
+{
+	"extensions":
+	[
+		"xml",
+		"xsd",
+		"xslt",
+		"svg",
+		"config",
+		"targets",
+		"csproj",
+		"snippet"
+	]
+}
