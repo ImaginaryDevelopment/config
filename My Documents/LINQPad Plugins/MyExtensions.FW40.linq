@@ -409,7 +409,14 @@ public static class MyExtensions
 	}
 	
 #endregion
-	
+	#region EnumExtensions
+	//http://stackoverflow.com/a/417217/57883
+		 public static bool Has<T>(this System.Enum type, T value) {
+           
+                return (((int)(object)type & (int)(object)value) == (int)(object)value);
+           
+        }
+	#endregion
 	#region Linqpad
 	public static T DumpIf<T>(this T val, Func<T,bool> predicate, string header=null){
 	if(predicate(val))
