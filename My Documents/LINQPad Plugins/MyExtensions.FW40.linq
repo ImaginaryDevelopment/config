@@ -516,7 +516,9 @@ public class FilePathWrapper:PathWrapper{
 		}
 	
 	}
-	
+	public string GetDirectoryName(){
+		return System.IO.Path.GetDirectoryName(this.RawPath);
+	}
 	public DateTime GetLastWriteLocalTime(){
 		return System.IO.File.GetLastWriteTime(this.RawPath);
 	}
@@ -530,6 +532,10 @@ public class FilePathWrapper:PathWrapper{
 public class DirectoryPathWrapper:PathWrapper{
 
 public DirectoryPathWrapper(string path) :base(path){}
+
+public string PathCombine(string otherPath){
+	return System.IO.Path.Combine(this.RawPath,otherPath);
+}
 
 public IEnumerable<Tuple<string,string>> GetJunctions(){
 		using(var ps= new Process()){
