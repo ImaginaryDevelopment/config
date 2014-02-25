@@ -59,3 +59,4 @@ userprofile/Roaming/vlc/
 userprofile/Roaming/npm-cache/
 userprofile/Roaming/npm/node_modules
 userprofile/Roaming/ChocolateyGUI/Logs/
+*.nupkg
