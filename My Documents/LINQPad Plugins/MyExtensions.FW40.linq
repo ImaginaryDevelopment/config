@@ -15,6 +15,14 @@ void Main()
 	Debug.Assert( @"\\vbcdapp1\c$\".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
 	Debug.Assert( 1.To(10).Aggregate((x,y)=>x+y)==1+2+3+4+5+6+7+8+9);
 	Debug.Assert(2.To(10).Aggregate((x,y)=>x+y)== 2+3+4+5+6+7+8+9);
+	Debug.Assert(LinqOp.PropertyOf<string>(s=>s.Length).Name=="Length","PropertyOf no instance is not working");
+	string stringInstance = null;
+	Debug.Assert(LinqOp.PropertyOf(()=>stringInstance.Length).Name=="Length","PropertyOf null instance is not working");
+	stringInstance=string.Empty;
+	Debug.Assert(LinqOp.PropertyOf(()=>stringInstance.Length).Name=="Length","PropertyOf instance is not working");
+	var stringHelper=LinqOp.PropertyNameHelper<string>();
+	Debug.Assert(stringHelper(s=>s.Length)=="Length","PropertyNameHelper no instance is not working");
+	
 }
 
 ///http://blogs.msdn.com/b/wesdyer/archive/2007/01/29/currying-and-partial-function-application.aspx
@@ -66,6 +74,10 @@ public static class LambdaOp{
 
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
+ public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
+            {
+                return e => PropertyOf(e).Name;
+            }
 	public static MethodInfo MethodOf<T>(Expression<Func<T>> expression) {
  
       var body = (MethodCallExpression)expression.Body;
@@ -88,7 +100,18 @@ public static class LinqOp{
       return body.Constructor;
  
    }
- 
+ 	public static PropertyInfo PropertyOf<T>(Expression<Func<T,object>> expression){
+		
+		 var memExp = (MemberExpression)MaybeUnary(expression);
+
+		return (PropertyInfo)memExp.Member;
+	}
+	static Expression MaybeUnary<T>(Expression<T> exp){
+		Expression result;
+		var uExp = exp.Body as UnaryExpression;
+        result = uExp != null ? uExp.Operand : exp.Body;
+        return result;
+	}
    public static PropertyInfo PropertyOf<T>(Expression<Func<T>> expression) {
  
       var body = (MemberExpression)expression.Body;
