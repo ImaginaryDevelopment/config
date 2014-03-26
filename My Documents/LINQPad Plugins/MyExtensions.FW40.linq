@@ -332,16 +332,24 @@ public static class MyExtensions
 		return text.Substring(0,text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
 	}
 	
+	public static string BeforeLast(this string text, string delimiter,StringComparison? comparison=null)
+	{
+		
+		return text.Substring(0,text.LastIndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
+	}
+	
 	public static string BeforeOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
 			return text;
 		return text.Before(delimiter);
 	}
+	
 	public static string AfterLast(this string text, string delimiter,StringComparison? comparison=null)
 	{
 		return text.Substring(text.LastIndexOf(delimiter, comparison?? StringComparison.CurrentCulture)+delimiter.Length);
 	}
+	
 	public static string AfterLastOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
