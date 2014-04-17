@@ -1,6 +1,7 @@
 <Query Kind="Program">
   <Reference>&lt;RuntimeDirectory&gt;\System.Runtime.InteropServices.dll</Reference>
   <Namespace>Microsoft.Win32.SafeHandles</Namespace>
+  <Namespace>System.Collections.ObjectModel</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
 </Query>
 
@@ -465,6 +466,19 @@ public static class MyExtensions
 	
 #endregion
 
+	#region DictionaryExtensions
+
+	 public static IReadOnlyDictionary<TKey, IEnumerable<TValue>> ToReadOnlyDictionary<TKey, TValue>(
+            this IDictionary<TKey, List<TValue>> toWrap)
+        {
+            IDictionary<TKey, IEnumerable<TValue>> intermediate = toWrap.ToDictionary(a => a.Key, a => a.Value.ToArray().AsEnumerable());
+
+            IReadOnlyDictionary<TKey, IEnumerable<TValue>> wrapper = new ReadOnlyDictionary<TKey, IEnumerable<TValue>>(intermediate);
+            return wrapper;
+        }
+		
+	#endregion
+	
 	#region EnumExtensions
 	//http://stackoverflow.com/a/417217/57883
 		 public static bool Has<T>(this System.Enum type, T value) {
@@ -473,6 +487,7 @@ public static class MyExtensions
            
         }
 	#endregion
+	
 	#region Linqpad
 	
 	public static T DumpIf<T>(this T val, Func<T,bool> predicate, string header=null){
