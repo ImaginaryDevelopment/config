@@ -101,6 +101,7 @@ public static class MyExtensions
 	public static TimeSpan Minutes(this int m){
 		return TimeSpan.FromMinutes(m);
 	}
+	#region DateTimeExtensions
 	public static string ToTime(this DateTime dt){
 		return dt.ToString().After(" ");
 	}
@@ -116,7 +117,19 @@ public static class MyExtensions
     		TimeSpan ts = new TimeSpan(d2.Ticks - d1.Ticks);
     		return ts.TotalMilliseconds;
 	}
+	
+	//http://stackoverflow.com/questions/38039/how-can-i-get-the-datetime-for-the-start-of-the-week
+	public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+    {
+        int diff = dt.DayOfWeek - startOfWeek;
+        if (diff < 0)
+        {
+            diff += 7;
+        }
 
+        return dt.AddDays(-1 * diff).Date;
+    }
+	#endregion
 	public static bool NextBool(this Random rnd)
 	{
 		return rnd.NextDouble()>0.5;
