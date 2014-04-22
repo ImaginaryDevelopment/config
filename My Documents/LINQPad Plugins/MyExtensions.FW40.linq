@@ -645,7 +645,42 @@ public DirectoryPathWrapper(string path) :base(path){}
 public string PathCombine(string otherPath){
 	return System.IO.Path.Combine(this.RawPath,otherPath);
 }
-
+static IEnumerable<string> GetFiles(string startDir, string wildcard=null){ //recursive
+	IEnumerable<string> files=null;
+	try
+	{	        
+		if(wildcard.IsNullOrEmpty()==false)
+			files = System.IO.Directory.GetFiles( startDir,wildcard);
+		else
+			files=System.IO.Directory.GetFiles(startDir);	
+	}
+	catch (Exception ex)
+	{
+		System.Diagnostics.Debug.WriteLine("Could not read files from "+startDir,ex);
+	}
+	if(files!=null)		
+	foreach(var i in files){
+		yield return i;
+	}
+	IEnumerable<string> directories=null;
+	try
+	{	        
+		directories=System.IO.Directory.GetDirectories(startDir);
+	}
+	catch (Exception ex)
+	{
+		System.Diagnostics.Debug.WriteLine("Could not directories read from "+startDir,ex);
+	}
+	if(directories!=null)
+	foreach(var dir in directories){
+		foreach(var f in GetFiles(dir,wildcard))
+			yield return f;
+	    
+	}
+}
+public IEnumerable<string> GetFiles(string wildcard=null){
+	return GetFiles(this.RawPath,wildcard);
+}
 public IEnumerable<Tuple<string,string>> GetJunctions(){
 		using(var ps= new Process()){
 			ps.StartInfo.FileName="cmd.exe";
