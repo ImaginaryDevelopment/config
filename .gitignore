@@ -60,6 +60,7 @@ userprofile/Roaming/npm-cache/
 userprofile/Roaming/npm/node_modules
 userprofile/Roaming/ChocolateyGUI/Logs/
 userprofile/Roaming/.minecraft/assets/*
+*.nupkg
 userprofile/Roaming/.minecraft/libraries/*
 userprofile/Roaming/.minecraft/mods/*
 userprofile/Roaming/.minecraft/resources/*

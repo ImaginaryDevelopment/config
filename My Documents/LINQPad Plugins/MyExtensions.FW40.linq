@@ -1,20 +1,51 @@
 <Query Kind="Program">
   <Reference>&lt;RuntimeDirectory&gt;\System.Runtime.InteropServices.dll</Reference>
   <Namespace>Microsoft.Win32.SafeHandles</Namespace>
+  <Namespace>System.Collections.ObjectModel</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
 </Query>
 
+//http://higherlogics.blogspot.com/2013/03/sasastrings-general-string-extensions.html
 void Main()
 {
 	// Write code to test your extensions here. Press F5 to compile and run.
 	
-	
+	//FilePathWrapper
 	Debug.Assert( @"C:\program files\".AsFilePath().GetSegments().Count()==2);
 	Debug.Assert( @"C:\program files".AsFilePath().GetSegments().Count()==2);
 	Debug.Assert( @"\\vbcdapp1\c$".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
 	Debug.Assert( @"\\vbcdapp1\c$\".AsFilePath().GetSegments().Count()==2,"GetSegments on a network path");
+	
+	// int.To
+	
 	Debug.Assert( 1.To(10).Aggregate((x,y)=>x+y)==1+2+3+4+5+6+7+8+9);
 	Debug.Assert(2.To(10).Aggregate((x,y)=>x+y)== 2+3+4+5+6+7+8+9);
+	
+	//LinqOp
+	Debug.Assert(My.LinqOp.PropertyOf<string>(s=>s.Length).Name=="Length","PropertyOf no instance is not working");
+	string stringInstance = null;
+	Debug.Assert(My.LinqOp.PropertyOf(()=>stringInstance.Length).Name=="Length","PropertyOf null instance is not working");
+	stringInstance=string.Empty;
+	Debug.Assert(My.LinqOp.PropertyOf(()=>stringInstance.Length).Name=="Length","PropertyOf instance is not working");
+	var stringHelper=My.LinqOp.PropertyNameHelper<string>();
+	Debug.Assert(stringHelper(s=>s.Length)=="Length","PropertyNameHelper no instance is not working");
+	Debug.Assert(My.LinqOp.MethodOf(()=>string.IsNullOrEmpty("")).Name=="IsNullOrEmpty");
+	//SplitWords
+	stringInstance="a bowl of cherries";
+	var expected=new []{"a", "bowl", "of" ,"cherries"};
+	var actual=stringInstance.SplitWords().ToArray();
+	Debug.Assert(actual.Count () == 4,"SplitWords failed:"+actual.Delimit(" "));
+	for (int i = 0; i < expected.Length; i++)
+	{
+		Debug.Assert(actual[i]==expected[i]);
+	}
+	//Tokenize - idea from http://higherlogics.blogspot.com/2013/03/sasastrings-general-string-extensions.html
+	var operators = "4 + 5 - 6^2 == x".Tokenize("+", "-", "^", "==").ToArray();
+	Debug.Assert(operators.Count ()==4);
+	Debug.Assert(operators[0].Item1=="+" && operators[0].Item2==2);
+	Debug.Assert(operators[1].Item1=="-" && operators[1].Item2==6);
+	Debug.Assert(operators[2].Item1=="^" && operators[2].Item2==9);
+	Debug.Assert(operators[3].Item1=="==" && operators[3].Item2==12);
 }
 
 ///http://blogs.msdn.com/b/wesdyer/archive/2007/01/29/currying-and-partial-function-application.aspx
@@ -64,66 +95,47 @@ public static class LambdaOp{
     }
 }
 
-///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
-public static class LinqOp{
-	public static MethodInfo MethodOf<T>(Expression<Func<T>> expression) {
- 
-      var body = (MethodCallExpression)expression.Body;
- 
-      return body.Method;
- 
-   }
-	public static MethodInfo MethodOf(Expression<Action> expression) {
- 
-      var body = (MethodCallExpression)expression.Body;
- 
-      return body.Method;
- 
-   }
- 
-   public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> expression) {
- 
-      var body = (NewExpression)expression.Body;
- 
-      return body.Constructor;
- 
-   }
- 
-   public static PropertyInfo PropertyOf<T>(Expression<Func<T>> expression) {
- 
-      var body = (MemberExpression)expression.Body;
- 
-      return (PropertyInfo)body.Member;
- 
-   }
- 
-   public static FieldInfo FieldOf<T>(Expression<Func<T>> expression) {
- 
-      var body = (MemberExpression)expression.Body;
- 
-      return (FieldInfo)body.Member;
- 
-   }
-
-}
-
 public static class MyExtensions
 {
 // Write custom extension methods here. They will be available to all queries.
 	public static TimeSpan Minutes(this int m){
 		return TimeSpan.FromMinutes(m);
 	}
+	#region DateTimeExtensions
 	public static string ToTime(this DateTime dt){
 		return dt.ToString().After(" ");
 	}
+	/// <summary>
+	/// Returns the number of milliseconds since Jan 1, 1970 (useful for converting C# dates to JS dates)
+	/// http://stackoverflow.com/a/9191958/57883
+	/// </summary>
+	/// <param name="dt">Date Time</param>
+	/// <returns>Returns the number of milliseconds since Jan 1, 1970 (useful for converting C# dates to JS dates)</returns>
+	public static double UnixTicks(this DateTime dt) {
+    		DateTime d1 = new DateTime(1970, 1, 1);
+    		DateTime d2 = dt.ToUniversalTime();
+    		TimeSpan ts = new TimeSpan(d2.Ticks - d1.Ticks);
+    		return ts.TotalMilliseconds;
+	}
 	
+	//http://stackoverflow.com/questions/38039/how-can-i-get-the-datetime-for-the-start-of-the-week
+	public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+    {
+        int diff = dt.DayOfWeek - startOfWeek;
+        if (diff < 0)
+        {
+            diff += 7;
+        }
 
+        return dt.AddDays(-1 * diff).Date;
+    }
+	#endregion
 	public static bool NextBool(this Random rnd)
 	{
 		return rnd.NextDouble()>0.5;
 	}
 
-	public static StreamOuts RunProcessRedirected(this Process ps, string arguments)
+	public static My.StreamOuts RunProcessRedirected(this Process ps, string arguments)
 	{
 		ps.StartInfo.Arguments=arguments;
 		ps.Start();
@@ -132,7 +144,7 @@ public static class MyExtensions
 	
 		ps.WaitForExit(2000);
 		if(errors.Length>0) 	Util.Highlight(errors).Dump("errors");
-		return new StreamOuts(){ Errors=errors, Output=output };
+		return new My.StreamOuts(){ Errors=errors, Output=output };
 	}
 	
 	#region xml related
@@ -242,12 +254,21 @@ public static class MyExtensions
 	//public static class StringExtensions
 	#region StringExtensions
 
+	
+	///returns all tokens with the index of that token
+	public static IEnumerable<Tuple<string,int>> Tokenize(this string input,params string[]  tokens){
+		var matches = new Regex(tokens.Select (t => My.StringUtilities.RegexEncode(t)).Delimit("|")).Matches(input);
+		//matches.Dump();
+		foreach(Match m in matches){
+			yield return new Tuple<string,int>(m.Value,m.Index);
+		}
+	}
 	public static bool IsMatch(this string text, string pattern, bool ignoreCase)
 	{
     	return ignoreCase ? Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase) :
         Regex.IsMatch(text, pattern);
 	}
-	public static byte[] ToByteArray(this string text)
+	public static byte[] ToByteArrayFromAscii(this string text)
 	{
 	    var encoding = new ASCIIEncoding();
 		return encoding.GetBytes(text);
@@ -255,16 +276,16 @@ public static class MyExtensions
 	///<summary>
 	///Assumes Ascii!
 	///</summary>
-	public static String ToStringFromBytes(this byte[] buffer)
+	public static String ToStringFromAsciiBytes(this byte[] buffer)
 	{
 		var encoding = new ASCIIEncoding();
 	    return encoding.GetString(buffer);
 	}
-	public static FilePathWrapper AsFilePath(this string path){
-		return new FilePathWrapper(path);
+	public static My.FilePathWrapper AsFilePath(this string path){
+		return new My.FilePathWrapper(path);
 	}
-	public static DirectoryPathWrapper AsDirPath(this string path){
-		return new DirectoryPathWrapper(path);
+	public static My.DirectoryPathWrapper AsDirPath(this string path){
+		return new My.DirectoryPathWrapper(path);
 	}
 	
 	
@@ -286,6 +307,14 @@ public static class MyExtensions
 			return (T)Enum.Parse(typeof(T), enumString);
 		return new T?();
 	}
+	
+	public static IEnumerable<string> RegexSplit(this string text,string pattern){
+		return Regex.Split(text,pattern);
+	}
+	public static IEnumerable<string> SplitWords(this string text){
+		return text.RegexSplit("\\W+");
+	}
+	
 	public static string RemoveMultipleWhitespaces(this string text)
 	{
 		return Regex.Replace(text,"\\s\\s+"," ");
@@ -317,16 +346,24 @@ public static class MyExtensions
 		return text.Substring(0,text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
 	}
 	
+	public static string BeforeLast(this string text, string delimiter,StringComparison? comparison=null)
+	{
+		
+		return text.Substring(0,text.LastIndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
+	}
+	
 	public static string BeforeOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
 			return text;
 		return text.Before(delimiter);
 	}
+	
 	public static string AfterLast(this string text, string delimiter,StringComparison? comparison=null)
 	{
 		return text.Substring(text.LastIndexOf(delimiter, comparison?? StringComparison.CurrentCulture)+delimiter.Length);
 	}
+	
 	public static string AfterLastOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
@@ -368,7 +405,47 @@ public static class MyExtensions
 	//public static class EnumerableExtensions
 	#region EnumerableExtensions
 	
-	public static IEnumerable<int> CumulativeSum(this IEnumerable<int> source){
+	//https://code.google.com/p/morelinq/source/browse/MoreLinq/DistinctBy.cs
+	public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector)
+    {
+            return source.DistinctBy(keySelector, null);
+    }
+		
+	public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
+    {
+            if (source == null) throw new ArgumentNullException("source");
+            if (keySelector == null) throw new ArgumentNullException("keySelector");
+            return DistinctByImpl(source, keySelector, comparer);
+    }
+	private static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
+        {
+#if !NO_HASHSET
+            var knownKeys = new HashSet<TKey>(comparer);
+            foreach (var element in source)
+            {
+                if (knownKeys.Add(keySelector(element)))
+                {
+                    yield return element;
+                }
+            }
+#else
+            //
+            // On platforms where LINQ is available but no HashSet<T>
+            // (like on Silverlight), implement this operator using 
+            // existing LINQ operators. Using GroupBy is slightly less
+            // efficient since it has do all the grouping work before
+            // it can start to yield any one element from the source.
+            //
+
+            return source.GroupBy(keySelector, comparer).Select(g => g.First());
+#endif
+        }
+		
+	public static IEnumerable<int> CumulativeSum(this IEnumerable<int> source)
+	{
 	//http://stackoverflow.com/a/4831908/57883
 		int sum=0;
 		foreach(var item in source){
@@ -381,7 +458,10 @@ public static class MyExtensions
 	///</summary>
 	public static string Delimit(this IEnumerable<string> values, string delimiter)
 	{
-		return values.Aggregate ((s1,s2)=>s1+delimiter+s2);
+	    var enumerated = values.ToArray();
+            if (enumerated.Any() == false)
+		        return string.Empty;
+            return enumerated.Aggregate((s1, s2) => s1 + delimiter + s2);
 	}
 	
 	public static IEnumerable<T> Materialize<T>(this IEnumerable<T> set)
@@ -398,19 +478,119 @@ public static class MyExtensions
 	}
 	
 #endregion
+
+	#region DictionaryExtensions
+
+	 public static IReadOnlyDictionary<TKey, IEnumerable<TValue>> ToReadOnlyDictionary<TKey, TValue>(
+            this IDictionary<TKey, List<TValue>> toWrap)
+        {
+            IDictionary<TKey, IEnumerable<TValue>> intermediate = toWrap.ToDictionary(a => a.Key, a => a.Value.ToArray().AsEnumerable());
+
+            IReadOnlyDictionary<TKey, IEnumerable<TValue>> wrapper = new ReadOnlyDictionary<TKey, IEnumerable<TValue>>(intermediate);
+            return wrapper;
+        }
+		
+	#endregion
+	
+	#region EnumExtensions
+	//http://stackoverflow.com/a/417217/57883
+		 public static bool Has<T>(this System.Enum type, T value) {
+           
+                return (((int)(object)type & (int)(object)value) == (int)(object)value);
+           
+        }
+	#endregion
 	
 	#region Linqpad
+	
 	public static T DumpIf<T>(this T val, Func<T,bool> predicate, string header=null){
 	if(predicate(val))
 		val.Dump(header);
 	return val;
 	}
+	
 	#endregion
 }
 
 // You can also define non-static classes, enums, etc.
+///bucket for generic stuff that wasn't an extension method
+public static class My{
 
 
+///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
+public static class LinqOp{
+ public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
+            {
+                return e => PropertyOf(e).Name;
+            }
+	public static MethodInfo MethodOf<T>(Expression<Func<T>> expression) {
+ 
+      var body = (MethodCallExpression)expression.Body;
+ 
+      return body.Method;
+ 
+   }
+	public static MethodInfo MethodOf(Expression<Action> expression) {
+ 
+      var body = (MethodCallExpression)expression.Body;
+ 
+      return body.Method;
+ 
+   }
+ 
+   public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> expression) {
+ 
+      var body = (NewExpression)expression.Body;
+ 
+      return body.Constructor;
+ 
+   }
+ 	public static PropertyInfo PropertyOf<T>(Expression<Func<T,object>> expression){
+		
+		 var memExp = (MemberExpression)MaybeUnary(expression);
+
+		return (PropertyInfo)memExp.Member;
+	}
+	static Expression MaybeUnary<T>(Expression<T> exp){
+		Expression result;
+		var uExp = exp.Body as UnaryExpression;
+        result = uExp != null ? uExp.Operand : exp.Body;
+        return result;
+	}
+   public static PropertyInfo PropertyOf<T>(Expression<Func<T>> expression) {
+ 
+      var body = (MemberExpression)expression.Body;
+ 
+      return (PropertyInfo)body.Member;
+ 
+   }
+ 
+   public static FieldInfo FieldOf<T>(Expression<Func<T>> expression) {
+ 
+      var body = (MemberExpression)expression.Body;
+ 
+      return (FieldInfo)body.Member;
+ 
+   }
+
+}
+
+public static class StringUtilities{
+	public static string RegexEncode(string input){
+		var tokens= new []{"(",")","+",".","[","^","$","*","\\","|","?"}; //simple, ignores 2 character tokens
+		var ouput= new StringBuilder();
+		for (int i = 0; i < input.Length; i++)
+		{
+			if(tokens.Any (t =>t==input[i].ToString() )){
+				ouput.Append("\\"+input[i]);
+			} else {
+			ouput.Append(input[i]);
+			}
+			
+		}
+		return ouput.ToString();
+	}
+}
 public struct StreamOuts
 {
 public string Errors{get;set;}
@@ -458,7 +638,9 @@ public class FilePathWrapper:PathWrapper{
 		}
 	
 	}
-	
+	public string GetDirectoryName(){
+		return System.IO.Path.GetDirectoryName(this.RawPath);
+	}
 	public DateTime GetLastWriteLocalTime(){
 		return System.IO.File.GetLastWriteTime(this.RawPath);
 	}
@@ -473,6 +655,45 @@ public class DirectoryPathWrapper:PathWrapper{
 
 public DirectoryPathWrapper(string path) :base(path){}
 
+public string PathCombine(string otherPath){
+	return System.IO.Path.Combine(this.RawPath,otherPath);
+}
+static IEnumerable<string> GetFiles(string startDir, string wildcard=null){ //recursive
+	IEnumerable<string> files=null;
+	try
+	{	        
+		if(wildcard.IsNullOrEmpty()==false)
+			files = System.IO.Directory.GetFiles( startDir,wildcard);
+		else
+			files=System.IO.Directory.GetFiles(startDir);	
+	}
+	catch (Exception ex)
+	{
+		System.Diagnostics.Debug.WriteLine("Could not read files from "+startDir,ex);
+	}
+	if(files!=null)		
+	foreach(var i in files){
+		yield return i;
+	}
+	IEnumerable<string> directories=null;
+	try
+	{	        
+		directories=System.IO.Directory.GetDirectories(startDir);
+	}
+	catch (Exception ex)
+	{
+		System.Diagnostics.Debug.WriteLine("Could not directories read from "+startDir,ex);
+	}
+	if(directories!=null)
+	foreach(var dir in directories){
+		foreach(var f in GetFiles(dir,wildcard))
+			yield return f;
+	    
+	}
+}
+public IEnumerable<string> GetFiles(string wildcard=null){
+	return GetFiles(this.RawPath,wildcard);
+}
 public IEnumerable<Tuple<string,string>> GetJunctions(){
 		using(var ps= new Process()){
 			ps.StartInfo.FileName="cmd.exe";
@@ -487,6 +708,7 @@ public IEnumerable<Tuple<string,string>> GetJunctions(){
 			}
 		}
 	}
+}
 }
 #region PInvoke //http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=15633
 public static class PInvokeWrapper{
