@@ -64,11 +64,6 @@
           <ToolTip>target table id part 2</ToolTip>
           <Default>org_panel_pixel_id</Default>
         </Literal>
-        <Literal>
-          <ID>targetStringField</ID>
-          <ToolTip>target table string</ToolTip>
-          <Default>url</Default>
-        </Literal>
       </Declarations>
       <Code Language="SQL_SSDT">
         <![CDATA[CREATE PROCEDURE [$SchemaName$].[$storedprocname$]
@@ -78,18 +73,18 @@ AS
  BEGIN
   merge into [$SchemaName$].[$TableName$] as target
   
-  using (select [int] as $Param1$)
-    as source ([int])
-    on target.$targetIdField$ = @$Param1$ and target.[$targetIntField$] = [source].[int]
+  using (select [value] as $Param1$)
+    as source ([value])
+    on target.$targetIdField$ = @$Param1$ and target.[$targetIntField$] = [source].[value]
 
 --update matched rows
 --when matched then
--- update set $targetStringField$ = [source].[string]
+-- update set targetStringField = [source].[string]
 
 --insert new rows
   when not matched by target then
     insert($targetIdField$,$targetIntField$)
-    values(@$Param1$,source.[int])
+    values(@$Param1$,source.[value])
 
 -- delete rows that are in target but not the source
   when not matched by source and target.$targetIntField$ = @$param1$ -- 
