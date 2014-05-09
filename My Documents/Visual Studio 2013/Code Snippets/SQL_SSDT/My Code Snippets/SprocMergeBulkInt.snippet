@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <_locDefinition xmlns="urn:locstudio">
+    <_locDefault _loc="locNone" />
+    <_locTag _loc="locData">Title</_locTag>
+    <_locTag _loc="locData">Description</_locTag>
+    <_locTag _loc="locData">Author</_locTag>
+    <_locTag _loc="locData">ToolTip</_locTag>
+  </_locDefinition>
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Create Procedure Merge BulkInt Template</Title>
+      <Shortcut></Shortcut>
+      <Description>Creates a merge stored procedure that uses dbo.bulk_int.</Description>
+      <Author>Brandon D'Imperio</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>SchemaName</ID>
+          <ToolTip>Name of the schema</ToolTip>
+          <Default>dbo</Default>
+        </Literal>
+        <Literal>
+          <ID>storedprocname</ID>
+          <ToolTip>Name of the stored procedure</ToolTip>
+          <Default>TableName_Merge</Default>
+        </Literal>
+        <Literal>
+          <ID>TableName</ID>
+          <ToolTip>Name of the target table</ToolTip>
+          <Default>Foo</Default>
+        </Literal>
+        <Literal>
+          <ID>Param1</ID>
+          <ToolTip>Name of the input parameter</ToolTip>
+          <Default>param1</Default>
+        </Literal>
+        <Literal>
+          <ID>datatype1</ID>
+          <ToolTip>Datatype of the input parameter</ToolTip>
+          <Default>int</Default>
+        </Literal>
+        <!--<Literal>
+          <ID>DefValue1</ID>
+          <ToolTip>Default value of the input parameter</ToolTip>
+          <Default>0</Default>
+        </Literal>-->
+        <Literal>
+          <ID>Param2</ID>
+          <ToolTip>Name of the bulk_int input parameter</ToolTip>
+          <Default>orgs</Default>
+        </Literal>
+        <Literal>
+          <ID>targetIdField</ID>
+          <ToolTip>target table id part 1</ToolTip>
+          <Default>org_id</Default>
+        </Literal>
+        <Literal>
+          <ID>targetIntField</ID>
+          <ToolTip>target table id part 2</ToolTip>
+          <Default>org_panel_pixel_id</Default>
+        </Literal>
+        <Literal>
+          <ID>targetStringField</ID>
+          <ToolTip>target table string</ToolTip>
+          <Default>url</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="SQL_SSDT">
+        <![CDATA[CREATE PROCEDURE [$SchemaName$].[$storedprocname$]
+    @$Param1$ $datatype1$,
+    @$Param2$ [dbo].[bulk_int] readonly
+AS
+ BEGIN
+  merge into [$SchemaName$].[$TableName$] as target
+  
+  using (select [int] as $Param1$)
+    as source ([int])
+    on target.$targetIdField$ = @$Param1$ and target.[$targetIntField$] = [source].[int]
+
+--update matched rows
+--when matched then
+-- update set $targetStringField$ = [source].[string]
+
+--insert new rows
+  when not matched by target then
+    insert($targetIdField$,$targetIntField$)
+    values(@$Param1$,source.[int])
+
+-- delete rows that are in target but not the source
+  when not matched by source and target.$targetIntField$ = @$param1$ -- 
+    then DELETE
+  ;
+ end $end$
+]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
+
