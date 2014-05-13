@@ -7,14 +7,17 @@
 [mergetool "kdiff3"]
 	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
 [diff]
+	tool = kdiff3
 	guitool = kdiff3
 [difftool "kdiff3"]
 	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
 [core]
 	editor = \"C:/Program Files (x86)/GitExtensions/GitExtensions.exe\" fileeditor
-	autocrlf = true
+	autocrlf = false
 [credential]
 	helper = !\\\"C:/Program Files (x86)/GitExtensions/GitCredentialWinStore/git-credential-winstore.exe\\\"
 [user]
-	name = Maslow
-	email = imaginarydevelopment@googlemail
+	name = ImaginaryDevelopment
+	email = " imaginarydevelopment@googlemail"
+[mergetool]
+	keepBackup = false

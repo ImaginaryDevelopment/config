@@ -1,0 +1,5 @@
+﻿<extensions>
+  <extension id="ReSharper.NuGet" enabled="True" />
+  <extension id="ReSharper.ExternalAnnotations" enabled="True" />
+  <extension id="StyleCop (4.7.49.0)" enabled="True" />
+</extensions>
