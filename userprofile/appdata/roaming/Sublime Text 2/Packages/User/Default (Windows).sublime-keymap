@@ -1,0 +1,15 @@
+[
+    {
+        "keys": ["ctrl+k,ctrl+d"],
+         "command": "js_format",
+        "context": [{"key": "selector", "operator": "equal", "operand": "source.js,source.json"}]
+    },
+    {
+    	"keys":["ctrl+up"],
+    	"command": "swap_line_up"
+    },
+    {
+    	"keys":["ctrl+down"],
+    	"command": "swap_line_down"
+    }
+]
