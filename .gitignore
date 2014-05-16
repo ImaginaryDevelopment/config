@@ -62,6 +62,7 @@ userprofile/Roaming/npm-cache/
 userprofile/Roaming/npm/node_modules
 userprofile/Roaming/ChocolateyGUI/Logs/
 *.nupkg
+userprofile/appdata/roaming/GitExtensions/GitExtensions/GitExtensions.settings.backup
 userprofile/appdata/roaming/Macromedia/
 userprofile/appdata/roaming/Glimpse/
 userprofile/appdata/roaming/Microsoft/Crypto/
@@ -74,6 +75,7 @@ userprofile/appdata/roaming/Microsoft/VisualStudio/
 userprofile/appdata/roaming/Microsoft/Windows/Recent/
 userprofile/appdata/roaming/Mozilla/Firefox/Profiles/
 userprofile/appdata/roaming/Microsoft/Office/
+userprofile/appdata/roaming/GitExtensions/GitExtensions/Recent/
 userprofile/appdata/roaming/Microsoft/Bibliography/
 userprofile/appdata/roaming/Microsoft/Credentials/
 userprofile/appdata/roaming/Microsoft/Document Building Blocks/
