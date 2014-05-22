@@ -9,6 +9,20 @@
 void Main()
 {
 	// Write code to test your extensions here. Press F5 to compile and run.
+	var dtStart= new DateTime(2014,5,22);
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Monday) ==new DateTime(2014,5,19));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Tuesday) ==new DateTime(2014,5,20));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Wednesday) ==new DateTime(2014,5,21));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Thursday) ==new DateTime(2014,5,22));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Friday) ==new DateTime(2014,5,16));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Saturday) ==new DateTime(2014,5,17));
+	Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Sunday) ==new DateTime(2014,5,18));
+	
+	var child = new XElement("child" );
+	var xmlWithAttrib =new  System.Xml.Linq.XElement("element",new System.Xml.Linq.XAttribute("test","1"),child);
+	
+	Debug.Assert(xmlWithAttrib.GetAbsoluteXPath() == "/element");
+	child.GetAbsoluteXPath().Dump();
 	
 	//FilePathWrapper
 	Debug.Assert( @"C:\program files\".AsFilePath().GetSegments().Count()==2);
