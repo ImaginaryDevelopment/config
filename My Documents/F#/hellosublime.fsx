@@ -1,9 +1,34 @@
+#r "System.Linq"
+open System.Linq.Expressions
 #r "System.Xml"
 #r "System.Xml.Linq"
-
+open Microsoft.FSharp.Reflection
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
 open System
+open System.Linq
 open System.Xml
 open System.Xml.Linq
+let rec eval = function
+    | Value(v,t) -> v
+    | Coerce(e,t) -> eval e
+    | NewObject(ci,args) -> ci.Invoke(evalAll args)
+    | NewArray(t,args) -> 
+        let array = Array.CreateInstance(t, args.Length) 
+        args |> List.iteri (fun i arg -> array.SetValue(eval arg, i))
+        box array
+     | NewUnionCase(case,args) -> FSharpValue.MakeUnion(case, evalAll args)
+     | NewRecord(t,args) -> FSharpValue.MakeRecord(t, evalAll args)
+     | NewTuple(args) ->
+         let t = FSharpType.MakeTupleType [|for arg in args -> arg.Type|]
+         FSharpValue.MakeTuple(evalAll args, t)
+     | FieldGet(Some(Value(v,_)),fi) -> fi.GetValue(v)
+     | PropertyGet(None, pi, args) -> pi.GetValue(null, evalAll args)
+     | PropertyGet(Some(x),pi,args) -> pi.GetValue(eval x, evalAll args)
+     | Call(None,mi,args) -> mi.Invoke(null, evalAll args)
+     | Call(Some(x),mi,args) -> mi.Invoke(eval x, evalAll args)
+     | arg -> raise <| NotSupportedException(arg.ToString())
+    and evalAll args = [|for arg in args -> eval arg|]
 
 type String with 
     member x.Before(delimiter:string) : string = 
@@ -18,13 +43,13 @@ type String with
         match x with
         | x when x.Contains(delimiter) -> x.After(delimiter)
         | _ -> x
-//[<AbstractClass; Sealed>] // http://stackoverflow.com/questions/13101995/defining-static-classes-in-f
-//[<Obsolete("not necessary in F#")>]
-//type LambdaOp private () =
+// [<AbstractClass; Sealed>] // http://stackoverflow.com/questions/13101995/defining-static-classes-in-f
+// [<Obsolete("not necessary in F#")>]
+// type LambdaOp private () =
 type [<Measure>]  minute
-//type [<Measure>] second
+// type [<Measure>] second
 
-//let seconds_per_minute = 60<second> / 1<minute>
+// let seconds_per_minute = 60<second> / 1<minute>
 
 type System.Int32 with
     member x.Minutes = 
@@ -93,36 +118,37 @@ type System.Xml.XmlNode with
         xDoc.Root
 
 
-//[<EntryPoint>]
+// [<EntryPoint>] // doesn't appear to work properly for sublime build, nor linqpad
 let main args=
-    Debug.Assert ("testing".Before( "ing") = "test")
-    Debug.Assert ("testing".After("test") = "ing")
-    Debug.Assert ("testing".BeforeOrSelf("ING") = "testing")
-    Debug.Assert ("testing".BeforeOrSelf("ng")="testi")
+    assert("testing".Before( "ing") = "test")
+    assert ("testing".After("test") = "ing")
+    assert ("testing".BeforeOrSelf("ING") = "testing")
+    assert ("testing".BeforeOrSelf("ng")="testi")
     let dtStart= DateTime(2014,5,22)
     
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Monday) = DateTime(2014,5,19))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Tuesday) = DateTime(2014,5,20))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Wednesday) = DateTime(2014,5,21))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Thursday) = DateTime(2014,5,22))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Friday) = DateTime(2014,5,16))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Saturday) = DateTime(2014,5,17))
-    Debug.Assert ( dtStart.StartOfWeek(DayOfWeek.Sunday) = DateTime(2014,5,18))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Monday) = DateTime(2014,5,19))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Tuesday) = DateTime(2014,5,20))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Wednesday) = DateTime(2014,5,21))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Thursday) = DateTime(2014,5,22))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Friday) = DateTime(2014,5,16))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Saturday) = DateTime(2014,5,17))
+    assert ( dtStart.StartOfWeek(DayOfWeek.Sunday) = DateTime(2014,5,18))
     (
         let XName n = System.Xml.Linq.XNamespace.None+ n
-        let child = XElement(XName "child" )
+        let child = XElement(XName "child")
         let child2 = XElement(XName "child")
         let attrib =System.Xml.Linq.XAttribute(XName "test","1")
         let xmlWithAttrib = System.Xml.Linq.XElement(XName "element",attrib,child,child2)
-        Debug.Assert( xmlWithAttrib.GetAttribVal(XName "test") = Some("1"))
-        Debug.Assert( xmlWithAttrib.GetAttribVal(XName "test1") = None)
-        Debug.Assert( xmlWithAttrib.GetAttribValOrNull(XName "test1") = null)
-        Debug.Assert( xmlWithAttrib.GetAttribValOrNull(XName "test") = "1")
-        Debug.Assert(xmlWithAttrib.GetAbsoluteXPath() = "/element")
-        Debug.Assert(child.GetAbsoluteXPath() = "/element/child[1]")
-        Debug.Assert(child2.GetAbsoluteXPath() = "/element/child[2]")
+        assert( xmlWithAttrib.GetAttribVal(XName "test") = Some("1"))
+        assert( xmlWithAttrib.GetAttribVal(XName "test1") = None)
+        assert( xmlWithAttrib.GetAttribValOrNull(XName "test1") = null)
+        assert( xmlWithAttrib.GetAttribValOrNull(XName "test") = "1")
+        assert(xmlWithAttrib.GetAbsoluteXPath() = "/element")
+        assert(child.GetAbsoluteXPath() = "/element/child[1]")
+        assert(child2.GetAbsoluteXPath() = "/element/child[2]")
         // attrib.GetAbsoluteXPath().Dump() // not defined, XAttribute is not an XElement
     )
+    printfn "%d" 0
     0
     
-main()
+main([])
