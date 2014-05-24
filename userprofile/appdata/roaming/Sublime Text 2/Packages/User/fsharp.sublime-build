@@ -1,0 +1,3 @@
+{
+	"cmd": ["fsi.exe","-g","-d:DEBUG","--exec","$file"]
+}

@@ -1,0 +1,7 @@
+{
+	"cmd": ["phantomjs", "$file"]/* ,
+	"windows": {
+		"cmd": ["taskkill /F /IM phantomjs.exe & phantomjs.exe","$file"]
+	}*/
+
+}

@@ -1,0 +1,7 @@
+{
+	/* had to edit protractor.cmd to be able to find node  "C:\Program Files\nodejs\node.exe"  "%~dp0\node_modules\protractor\bin\protractor" %* */
+	"cmd": ["C:\\Users\\brandon.dimperio\\AppData\\Roaming\\npm\\protractor.cmd","C:/projects/javascript/protractor/myConfBatch.js","--specs $file"],
+	"selector": "*.js",
+	"path":"C:/projects/javascript/protractor"
+}
+

@@ -7,6 +7,8 @@ My Documents/OneNote Notebooks/
 My Documents/Visual Studio 2010/
 My Documents/Visual Studio 2008/
 My Documents/Visual Studio*
+!My Documents/Visual Studio*/Code Snippets/*
+!My Documents/Visual Studio*/My Exported Templates/*
 userprofile/Roaming/JetBrains/
 userprofile/Roaming/LINQPad/ConnectionsV2.xml
 userprofile/Roaming/LINQPad/Nutshell.mdf
@@ -109,6 +111,54 @@ userprofile/Roaming/Kalypso Media/Dungeons - The Dark Lord Demo/
 userprofile/Roaming/NationRed/
 userprofile/Roaming/Ubisoft/Assassin's Creed Revelations/
 userprofile/Roaming/Beat Hazard/
+userprofile/appdata/roaming/GitExtensions/GitExtensions/GitExtensions.settings.backup
+userprofile/appdata/roaming/Macromedia/
+userprofile/appdata/roaming/Glimpse/
+userprofile/appdata/roaming/Microsoft/Crypto/
+userprofile/appdata/roaming/Sublime Text 2/Pristine Packages/
+userprofile/appdata/roaming/Skype/
+userprofile/appdata/roaming/JetBrains/ReSharper/vAny/*.Tmp
+userprofile/appdata/roaming/Sublime Text 2/Backup/
+userprofile/appdata/roaming/Microsoft/Windows/Start Menu/
+userprofile/appdata/roaming/Microsoft/VisualStudio/
+userprofile/appdata/roaming/Microsoft/Windows/Recent/
+userprofile/appdata/roaming/Mozilla/Firefox/Profiles/
+userprofile/appdata/roaming/Microsoft/Office/
+userprofile/appdata/roaming/GitExtensions/GitExtensions/Recent/
+userprofile/appdata/roaming/Microsoft/Bibliography/
+userprofile/appdata/roaming/Microsoft/Credentials/
+userprofile/appdata/roaming/Microsoft/Document Building Blocks/
+userprofile/appdata/roaming/Microsoft/Microsoft SQL Server/
+userprofile/appdata/roaming/Microsoft/Excel/
+userprofile/appdata/roaming/Microsoft/IME/
+userprofile/appdata/roaming/Microsoft/Protect/
+userprofile/appdata/roaming/Microsoft/SystemCertificates/
+userprofile/appdata/roaming/Microsoft/Templates/
+userprofile/appdata/roaming/Microsoft/VWDExpress/
+userprofile/appdata/roaming/Microsoft/Windows/SendTo/
+userprofile/appdata/roaming/Microsoft/Outlook/
+userprofile/appdata/roaming/Telerik/Installer/
+userprofile/appdata/roaming/Microsoft/Windows/
+userprofile/appdata/roaming/Microsoft/Spelling/
+userprofile/appdata/roaming/Microsoft/UProof/
+userprofile/appdata/roaming/vlc/
+userprofile/appdata/roaming/Microsoft/Microsoft Visual Studio/*/*.bin
+userprofile/appdata/roaming/Mozilla/Firefox/Crash Reports/
+userprofile/appdata/roaming/LINQPad/
+!userprofile/appdata/roaming/LINQPad/RoamingUserOptions.xml
+userprofile/appdata/roaming/GitExtensions/GitExtensions/
+userprofile/appdata/roaming/Microsoft/MMC/
+userprofile/appdata/roaming/Microsoft/Speech/
+userprofile/appdata/roaming/Microsoft/Network/
+userprofile/appdata/roaming/Mozilla/Firefox/profiles.ini
+userprofile/appdata/roaming/Sublime Text 2/Installed Packages/*.sublime-package
+userprofile/appdata/roaming/Microsoft/OneNote/*/Preferences.dat
+userprofile/appdata/roaming/JetBrains/PermanentUserId
+userprofile/appdata/roaming/JetBrains/dotPeek/vAny/GlobalSettingsStorage.DotSettings
+userprofile/appdata/roaming/Sublime Text 2/Packages/*
+!userprofile/appdata/roaming/Sublime Text 2/Packages/User
+userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.cache
+userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.last-run
 userprofile/Roaming/ImaginaryDevelopment/StarfleetCommander.*
 userprofile/Roaming/WindSolutions/CopyTransControlCenter/
 userprofile/Roaming/ZombieDriver/
