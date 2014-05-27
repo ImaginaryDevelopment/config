@@ -22,7 +22,7 @@ void Main()
 	var xmlWithAttrib =new  System.Xml.Linq.XElement("element",new System.Xml.Linq.XAttribute("test","1"),child);
 	
 	Debug.Assert(xmlWithAttrib.GetAbsoluteXPath() == "/element");
-	child.GetAbsoluteXPath().Dump();
+	Debug.Assert(child.GetAbsoluteXPath() == "/element/child[1]",child.GetAbsoluteXPath());
 	
 	//FilePathWrapper
 	Debug.Assert( @"C:\program files\".AsFilePath().GetSegments().Count()==2);
@@ -530,7 +530,25 @@ public static class MyExtensions
 ///bucket for generic stuff that wasn't an extension method
 public static class My{
 
+public class LinqpadStorage{
 
+	public string Path {get;private set;}
+	public string Value{get;set;}
+	
+	public LinqpadStorage(string storageName){
+		var directory=Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+		
+		System.IO.Directory.CreateDirectory(directory);
+		Path = System.IO.Path.Combine(directory,storageName+".json");
+		if(System.IO.File.Exists(Path))
+			Value= System.IO.File.ReadAllText(Value);
+	}
+	public void Save(){
+		System.IO.File.WriteAllText(Path,Value);
+	}
+	
+	
+}
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
  public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
