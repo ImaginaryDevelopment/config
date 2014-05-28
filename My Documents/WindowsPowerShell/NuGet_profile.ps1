@@ -1,6 +1,6 @@
 # to enable better debugging:
 # set-psdebug -strict
-
+# to reload profile . $profile
 
 function GetPSLoadedAssemblies{
     #also Get-PSSnapin
@@ -68,80 +68,91 @@ function Set-FontSize {
     )
    $dte.Properties("FontsAndColors", "TextEditor").Item("FontSize").Value = $Size
 }
-function ReloadProfile{
-    . $profile
+
+function GetSolutionFolderProjects(){
+    param($solutionFolder)
+    $projectList = @()
+    for($i = 1; $i -le $solutionFolder.ProjectItems.Count; $i++){
+        $subProject = $solutionFolder.ProjectItems.Item($i).subProject
+        if($subProject -eq $null){
+            continue;
+        }
+
+        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
+        {
+            $projectList += GetSolutionFolderProjects($subProject)
+        } else {
+            $projectList += $subProject
+        }
+    }
+    return $projectList
 }
 
-$SolutionFolderGuid="{66A26720-8FB5-11D2-AA7E-00C04F688DDE}";
-$ProjectGuid="{66A26722-8FB5-11D2-AA7E-00C04F688DDE}";
+function RecurseSolutionProjects(){
+    $projects = get-interface $dte.Solution.Projects ([EnvDTE.Projects])
+    write-debug "projects=$projects"
+        #$result = new-object "System.Collections.Generic.List[System.Object]"
+    $result = new-object "System.Collections.Generic.List[EnvDTE.Project]"
+    foreach($project in $projects.GetEnumerator()) {
+            if($project -eq $null){
+                continue;
+            }
+
+            write-debug "yay project or solution folder! $project $project.Kind"
+            if($project.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder){
+                write-debug -message "Solution folder! $project.Name"
+
+                foreach($solutionFolderProject in GetSolutionFolderProjects($project)){
+                    $result+=$solutionFolderProject
+                }
+
+            } else {
+                write-debug "else! $project.Name $project.Kind"
+                $result+=$project
+            }
+    }
+    return $result
+}
+
+function RecurseDescendants(){
+    param($source)
+    write-debug "starting RecurseDescendants"
+    $result = new-object "System.Collections.Generic.List[EnvDTE.ProjectItem]"
+    foreach($s in $source){
+        #write-host "working on " $s.Kind $s.Name $s.FileNames(0)
+
+        $pi = $s.Object -as [EnvDTE.ProjectItem]
+        $result+=$s
+        $children=$s.ProjectItems
+        foreach($child in RecurseDescendants($children)){
+            $result+=$child
+        }
+        write-debug "inner for each stopped"
+    }
+    write-debug "outer for each finished"
+    return $result
+}
+
+function GetProjectItems(){ 
+    param($project)
+    write-host "getting project items for " $project.Name $project.ProjectName
+    #example: GetProjectItems((RecurseSolutionProjects).get_Item(1))
+    $result =RecurseDescendants($project.ProjectItems)
+    return $result
+}
+
+function GetProjectFiles(){
+    param($project)
+    write-host "getting project files for " $project.Name $project.ProjectName
+    $projectItems = RecurseDescendants($project.ProjectItems)
+    return $projectItems | Where-Object {$_.Kind -ne [EnvDTE.Constants]::vsProjectItemKindPhysicalFolder}
+}
+function GetUnversionedFiles(){
+    param($items)
+    write-host "checking for unversioned files"
+    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+    return $items | Where-Object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE }
+
+}
 # http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
 # http://blogs.interfacett.com/working-hierarchical-objects-powershell
-function GetUnversionedItems {
-    $sln2 = get-interface $dte.Solution ([EnvDTE80.Solution2])
-    $items = @()
-    $items += $sln2.Projects
-    write-host "starting with " $items.Length
-    for($i =0; $i -lt $items.count; $i++)
-    {
-
-        $item=$items[$i]
-        if($item.ProjectItems.count -gt 0)
-        {
-
-            $items += $item.ProjectItems
-        }
-        $kind = $item.Kind.ToString()
-        switch($kind){
-            $SolutionFolderGuid {write-host "Solution folder!" $item.Name $item.ProjectItems.Length }
-            $ProjectGuid {write-host "Project" $item.Name}
-            default {
-                write-host $item.Name " kind " $item.Kind
-            }
-        }
-        # write-host "checking " $item.Name " with kind " $kind.ToString() " against " $SolutionFolderGuid.ToString() " and " $ProjectGuid
-        if($kind -eq $SolutionFolderGuid.ToString()){
-            $slnFolder = get-interface $item ([EnvDTE80.SolutionFolder])
-                write-host "SolutionFolder" $item.Name $slnFolder
-                
-        }
-        if($item.Kind.ToString() -eq $ProjectGuid.ToString())
-        {
-                $project = get-interface $item ([EnvDTE.Project])
-                write-host "ProjectName" $item.Name $project
-                if($project -eq $null){
-                    continue
-                }
-                $items += $project.ProjectItems
-                write-host "ProjectName" $item.Name $project
-                if($item.IsItemUnderScc -ne $TRUE ){
-                    write-host $item.Properties
-                    if($item.FileCount -gt 0){
-
-                    write-host $item.Name $item.IsItemUnderScc $item.ProjectItems.count
-                    write-host $project.ProjectItems([int16]0) "104 pass!"
-                    } else {
-                        write-host $item.Name $item.IsItemUnderScc $item.FileNames([byte]0) "105 pass!"
-                    }
-                }
-        }
-         
-                # write-host "odd kind " $item.Name $item.Kind
-                #if($item.IsItemUnderScc -ne $TRUE ){
-                #    write-host $item.Name "unmatched guid" $item.Kind
-                #}
-            
-        
-        if($item.Name -ne "Miscellaneous Files"){
-            Foreach($projectItem in $item.ProjectItems){ 
-                # does not account for the possibility one of these items is a solution folder
-                if($projectItem.Kind.ToString() -ne $SolutionFolderGuid){
-
-                    if($projectItem.IsItemUnderScc -ne $TRUE ){
-                        write-host "unversioned project item" $item.Name $projectItem.Name
-                    }
-                }
-            }
-        }    
-    }
-    write-host "Processed " $items.count
-}
