@@ -14,9 +14,13 @@ function Get-Batchfile ($file) {
     }
 }
   
-function VsVars32($version = "10.0")
+function VsVars32($version = "12.0")
 {
-    $key = "HKLM:SOFTWARE\Microsoft\VisualStudio\" + $version
+    if(test-path HKLM:\SOFTWARE\WOW6432NODE){
+        $key = "Registry::HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\" + $version
+    } else {
+        $key = "Registry::HKLM\SOFTWARE\Microsoft\VisualStudio\" + $version
+    }
     $VsKey = get-ItemProperty $key
     $VsInstallPath = [System.IO.Path]::GetDirectoryName($VsKey.InstallDir)
     $VsToolsDir = [System.IO.Path]::GetDirectoryName($VsInstallPath)
@@ -69,7 +73,7 @@ function Set-FontSize {
    $dte.Properties("FontsAndColors", "TextEditor").Item("FontSize").Value = $Size
 }
 
-function GetSolutionFolderProjects(){
+function RecurseSolutionFolderProjects(){
     param($solutionFolder)
     $projectList = @()
     for($i = 1; $i -le $solutionFolder.ProjectItems.Count; $i++){
@@ -80,7 +84,7 @@ function GetSolutionFolderProjects(){
 
         if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
         {
-            $projectList += GetSolutionFolderProjects($subProject)
+            $projectList += RecurseSolutionFolderProjects($subProject)
         } else {
             $projectList += $subProject
         }
@@ -88,7 +92,7 @@ function GetSolutionFolderProjects(){
     return $projectList
 }
 
-function RecurseSolutionProjects(){
+function GetSolutionProjects(){
     $projects = get-interface $dte.Solution.Projects ([EnvDTE.Projects])
     write-debug "projects=$projects"
         #$result = new-object "System.Collections.Generic.List[System.Object]"
@@ -102,7 +106,7 @@ function RecurseSolutionProjects(){
             if($project.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder){
                 write-debug -message "Solution folder! $project.Name"
 
-                foreach($solutionFolderProject in GetSolutionFolderProjects($project)){
+                foreach($solutionFolderProject in RecurseSolutionFolderProjects($project)){
                     $result+=$solutionFolderProject
                 }
 
@@ -136,7 +140,7 @@ function RecurseDescendants(){
 function GetProjectItems(){ 
     param($project)
     write-host "getting project items for " $project.Name $project.ProjectName
-    #example: GetProjectItems((RecurseSolutionProjects).get_Item(1))
+    #example: GetProjectItems((GetSolutionProjects).get_Item(1))
     $result =RecurseDescendants($project.ProjectItems)
     return $result
 }
@@ -153,6 +157,12 @@ function GetUnversionedFiles(){
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
     return $items | Where-Object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE }
 
+}
+function CheckProjectForMissingOrUnversioned(){
+    param($project)
+    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+    $projectFiles =GetProjectFiles($project)
+    return $projectFiles | Foreach-Object {GetProjectItems($_)} | Where-object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE -Or ((test-path -path $_.FileNames(0)) -ne $TRUE)}
 }
 # http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
 # http://blogs.interfacett.com/working-hierarchical-objects-powershell
