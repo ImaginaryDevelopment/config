@@ -30,7 +30,11 @@ function VsVars32($version = "12.0")
     [System.Console]::Title = "Visual Studio " + $version + " Windows Powershell"
     #add a call to set-consoleicon as seen below...hm...!
 }
-
+function devenv($rootsuffix="Roslyn"){
+    VsVars32()
+    # http://stackoverflow.com/a/23171639/57883
+    &"devenv /rootsuffix $rootsuffix"
+}
 function Invoke-SQL {
     param(
      [string] $dataSource = $(throw "Please specify a dataSource"),
