@@ -6,6 +6,7 @@ function GetPSLoadedAssemblies{
     #also Get-PSSnapin
     [appdomain]::currentdomain.getassemblies() | sort -property fullname
 }
+
 function Get-Batchfile ($file) {
     $cmd = "`"$file`" & set"
     cmd /c $cmd | Foreach-Object {
@@ -31,10 +32,11 @@ function VsVars32($version = "12.0")
     #add a call to set-consoleicon as seen below...hm...!
 }
 function devenv($rootsuffix="Roslyn"){
-    VsVars32()
+    VsVars32
     # http://stackoverflow.com/a/23171639/57883
     &"devenv /rootsuffix $rootsuffix"
 }
+
 function Invoke-SQL {
     param(
      [string] $dataSource = $(throw "Please specify a dataSource"),
@@ -78,7 +80,7 @@ function Set-FontSize {
 }
 
 function RecurseSolutionFolderProjects(){
-    param($solutionFolder)
+    param($solutionFolder = $(throw "Please specify a solutionFolder"))
     $projectList = @()
     for($i = 1; $i -le $solutionFolder.ProjectItems.Count; $i++){
         $subProject = $solutionFolder.ProjectItems.Item($i).subProject
@@ -96,6 +98,23 @@ function RecurseSolutionFolderProjects(){
     return $projectList
 }
 
+function GetProjectFileTypes(){
+    param($project = $(throw "Please specify a project"))
+    $files= GetProjectFiles $project
+    # http://stackoverflow.com/a/6000217/57883
+    write-debug ("item count = " + $files.Count)
+    $fileNames = $files | foreach-object { 
+        new-object psobject -property @{
+                FileName= $_.FileNames(0)
+                Extension =[System.IO.Path]::GetExtension($_.FileNames(0))
+        }}
+    #write-host $fileNames    
+    write-debug ("item count = " + $files.Count)
+    return $fileNames | Group-Object Extension | %{
+        New-Object psobject -Property @{Extension = $_.Name ;Count= $_.Count}
+    }
+}
+
 function GetSolutionProjects(){
     $projects = get-interface $dte.Solution.Projects ([EnvDTE.Projects])
     write-debug "projects=$projects"
@@ -108,14 +127,14 @@ function GetSolutionProjects(){
 
             write-debug "yay project or solution folder! $project $project.Kind"
             if($project.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder){
-                write-debug -message "Solution folder! $project.Name"
+                write-debug -message "Solution folder! '$project.Name'"
 
                 foreach($solutionFolderProject in RecurseSolutionFolderProjects($project)){
                     $result+=$solutionFolderProject
                 }
 
             } else {
-                write-debug "else! $project.Name $project.Kind"
+                write-debug "else! '$project.Name' '$project.Kind'"
                 $result+=$project
             }
     }
@@ -123,7 +142,7 @@ function GetSolutionProjects(){
 }
 
 function RecurseDescendants(){
-    param($source)
+    param($source  = $(throw "Please specify a source"))
     write-debug "starting RecurseDescendants"
     $result = new-object "System.Collections.Generic.List[EnvDTE.ProjectItem]"
     foreach($s in $source){
@@ -142,28 +161,36 @@ function RecurseDescendants(){
 }
 
 function GetProjectItems(){ 
-    param($project)
-    write-host "getting project items for " $project.Name $project.ProjectName
+    param($project = $(throw "Please specify a project"))
+    if($project.ProjectItems.count -gt 0){
+        write-debug "getting project items for '$project.Name' '$project.ProjectName'"
+    }
     #example: GetProjectItems((GetSolutionProjects).get_Item(1))
     $result =RecurseDescendants($project.ProjectItems)
     return $result
 }
 
 function GetProjectFiles(){
-    param($project)
-    write-host "getting project files for " $project.Name $project.ProjectName
+    param($project = $(throw "Please specify a project"))
+
+    write-debug ("getting project files for " + $project.Name + " "+ $project.ProjectName)
+
     $projectItems = RecurseDescendants($project.ProjectItems)
     return $projectItems | Where-Object {$_.Kind -ne [EnvDTE.Constants]::vsProjectItemKindPhysicalFolder}
 }
+
 function GetUnversionedFiles(){
-    param($items)
+    param($items = $(throw "Please specify items"))
     write-host "checking for unversioned files"
+
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
     return $items | Where-Object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE }
 
 }
+
 function CheckProjectForMissingOrUnversioned(){
-    param($project)
+    param($project = $(throw "Please specify a project"))
+
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
     $projectFiles =GetProjectFiles($project)
     return $projectFiles | Foreach-Object {GetProjectItems($_)} | Where-object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE -Or ((test-path -path $_.FileNames(0)) -ne $TRUE)}
