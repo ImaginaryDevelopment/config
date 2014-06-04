@@ -80,7 +80,10 @@ function Set-FontSize {
 }
 
 function RecurseSolutionFolderProjects(){
-    param($solutionFolder = $(throw "Please specify a solutionFolder"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $solutionFolder = $(throw "Please specify a solutionFolder")
+        )
     $projectList = @()
     for($i = 1; $i -le $solutionFolder.ProjectItems.Count; $i++){
         $subProject = $solutionFolder.ProjectItems.Item($i).subProject
@@ -99,7 +102,10 @@ function RecurseSolutionFolderProjects(){
 }
 
 function GetProjectFileTypes(){
-    param($project = $(throw "Please specify a project"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
     $files= GetProjectFiles $project
     # http://stackoverflow.com/a/6000217/57883
     write-debug ("item count = " + $files.Count)
@@ -142,7 +148,10 @@ function GetSolutionProjects(){
 }
 
 function RecurseDescendants(){
-    param($source  = $(throw "Please specify a source"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $source  = $(throw "Please specify a source")
+        )
     write-debug "starting RecurseDescendants"
     $result = new-object "System.Collections.Generic.List[EnvDTE.ProjectItem]"
     foreach($s in $source){
@@ -161,7 +170,10 @@ function RecurseDescendants(){
 }
 
 function GetProjectItems(){ 
-    param($project = $(throw "Please specify a project"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
     if($project.ProjectItems.count -gt 0){
         write-debug "getting project items for '$project.Name' '$project.ProjectName'"
     }
@@ -171,7 +183,10 @@ function GetProjectItems(){
 }
 
 function GetProjectFiles(){
-    param($project = $(throw "Please specify a project"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
 
     write-debug ("getting project files for " + $project.Name + " "+ $project.ProjectName)
 
@@ -180,7 +195,11 @@ function GetProjectFiles(){
 }
 
 function GetUnversionedFiles(){
-    param($items = $(throw "Please specify items"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $items = $(throw "Please specify items")
+        )
+    #GetUnversionedFiles(getprojectfiles((GetSolutionProjects).get_Item(0))) | format-table
     write-host "checking for unversioned files"
 
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
@@ -189,11 +208,20 @@ function GetUnversionedFiles(){
 }
 
 function CheckProjectForMissingOrUnversioned(){
-    param($project = $(throw "Please specify a project"))
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
 
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
-    $projectFiles =GetProjectFiles($project)
-    return $projectFiles | Foreach-Object {GetProjectItems($_)} | Where-object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE -Or ((test-path -path $_.FileNames(0)) -ne $TRUE)}
+    $projectFiles = GetProjectFiles($project)
+    return $projectFiles | Where-object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE -Or ((test-path -path $_.FileNames(0)) -ne $TRUE)}
 }
 # http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
 # http://blogs.interfacett.com/working-hierarchical-objects-powershell
+
+# set-alias svc 'sc.exe' # doesn't work as I'd hoped
+ function GetServiceRunAs(){
+    param($computername = $(throw "please specify a computer name"))
+    return Get-WmiObject win32_service -filter "(StartName Like '%$runasuser%')" -ComputerName $computername -ErrorAction Stop | select name,startname
+    }
