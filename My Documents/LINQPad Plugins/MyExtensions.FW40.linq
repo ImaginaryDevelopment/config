@@ -5,6 +5,7 @@
   <Namespace>System.Runtime.InteropServices</Namespace>
 </Query>
 
+#define LinqPad
 //http://higherlogics.blogspot.com/2013/03/sasastrings-general-string-extensions.html
 void Main()
 {
@@ -522,6 +523,10 @@ public static class MyExtensions
 		val.Dump(header);
 	return val;
 	}
+	public static T DumpProp<T>(this T val, Func<T,object> accessor,string header=null){
+		accessor(val).Dump(header);
+		return val;
+	}
 	
 	#endregion
 }
@@ -636,8 +641,12 @@ public class PathWrapper{
 		var otherUri= new Uri(otherPath);
 		return uri.MakeRelativeUri(otherUri).ToString().Replace("%20"," ");
 	}
+	
 	public PathWrapper(string rawPath){
 		RawPath=rawPath;
+	}
+	public PathWrapper Combine(string segment){
+		return new PathWrapper(System.IO.Path.Combine(RawPath,segment));
 	}
 	public IEnumerable<string> GetSegments(){
 		var seperators=new[]{System.IO.Path.DirectorySeparatorChar,System.IO.Path.AltDirectorySeparatorChar};
@@ -653,6 +662,10 @@ public class PathWrapper{
 		return splits;
 		return new[]{ first+ splits.First()}.Concat(splits.Skip(1));
 	}
+	public object ToAHref(){
+		return LINQPad.Util.RawHtml("<a href=\""+this.RawPath+"\" title=\""+this.RawPath+"\">link</a>"); //.Dump(path.Key.ToString());
+	}
+	
 	public  Hyperlinq AsExplorerSelectLink(string text){
 		var arguments= string.Format("/select,{0}",this.RawPath);
 		return new Hyperlinq( QueryLanguage.Expression, "Process.Start(\"Explorer.exe\",@\""+arguments+"\")",text);
