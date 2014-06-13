@@ -54,6 +54,11 @@ void Main()
 	{
 		Debug.Assert(actual[i]==expected[i]);
 	}
+	var so = AttributeTargets.Assembly | AttributeTargets.Class;
+	//so.Dump();
+	Debug.Assert(so.Has(AttributeTargets.Assembly),"Enum Has failed to find Assembly");
+	Debug.Assert(so.ContainedValues<AttributeTargets>().Count()==2,"Enum iteration of flags failed to enumerate properly");
+	
 	//Tokenize - idea from http://higherlogics.blogspot.com/2013/03/sasastrings-general-string-extensions.html
 	var operators = "4 + 5 - 6^2 == x".Tokenize("+", "-", "^", "==").ToArray();
 	Debug.Assert(operators.Count ()==4);
@@ -62,6 +67,7 @@ void Main()
 	Debug.Assert(operators[2].Item1=="^" && operators[2].Item2==9);
 	Debug.Assert(operators[3].Item1=="==" && operators[3].Item2==12);
 }
+
 
 ///http://blogs.msdn.com/b/wesdyer/archive/2007/01/29/currying-and-partial-function-application.aspx
 ///http://blogs.msdn.com/b/ericlippert/archive/2009/06/25/mmm-curry.aspx
@@ -509,11 +515,20 @@ public static class MyExtensions
 	
 	#region EnumExtensions
 	//http://stackoverflow.com/a/417217/57883
-		 public static bool Has<T>(this System.Enum type, T value) {
-           
-                return (((int)(object)type & (int)(object)value) == (int)(object)value);
-           
-        }
+	
+	public static bool Has<T>(this System.Enum type, T value) {     
+        return (((int)(object)type & (int)(object)value) == (int)(object)value);   
+    }
+	//needs work, requires the type of T to be specified even though it's kinda there in the params
+	public static IEnumerable<T> ContainedValues<T>(this Enum flagEnum)
+		where T:struct
+		{
+			//if(Enum.IsDefined(typeof(T),
+		return from v in Enum.GetValues(typeof(T)).Cast<T>()
+			where flagEnum.Has(v)
+			select (T)v;
+	}
+
 	#endregion
 	
 	#region Linqpad
