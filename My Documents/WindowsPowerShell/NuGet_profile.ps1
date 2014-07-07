@@ -74,10 +74,75 @@ function ReloadProfile{
 
 $SolutionFolderGuid="{66A26720-8FB5-11D2-AA7E-00C04F688DDE}";
 $ProjectGuid="{66A26722-8FB5-11D2-AA7E-00C04F688DDE}";
+function GetSolutionProjects {
+    param(
+        $SourceControl = (get-interface $dte.SourceControl ([EnvDTE.SourceControl])),
+        $sln2 = (get-interface $dte.Solution ([EnvDTE80.Solution2])),
+        [Parameter(Mandatory=$false)]$items
+    )
+    #recursive
+    if(!($items)){
+        $items =[Array]$sln2.Projects
+    }
+    write-host "sln2 = $sln2" "SourceControl=$SourceControl" "items=$items" "projects = $sln2.Projects"
+    #excludes solution folders and solution items
+    $containers = New-Object System.Collections.Generic.List[EnvDTE.ProjectItems]
+    foreach($item in $items){
+        $project =get-interface $item ([EnvDTE.Project])
+        $projectItem = get-interface $item ([EnvDTE.ProjectItem])
+
+        if($project -ne $null){
+            $projectItems =get-interface $project.ProjectItems ([EnvDTE.ProjectItems])
+            $containers.Add($projectItems)
+            if($project.SubProject -ne $null){
+                write-host "sub project! " $project.SubProject
+            }
+        }
+        if($projectItem -ne $null -and $projectItem.ProjectItems.count -gt 0){
+            $containers.Add($projectItem.ProjectItems)
+        }
+    }
+    write-host $containers
+    
+    for($i=1; $i -lt $containers.count; $i++){
+        # $[EnvDTE.Constants] | get-member -static
+        write-host "index is " $i
+        $item = $containers[$i]
+        switch($item.Kind.ToString()){ # http://geekswithblogs.net/michelotti/archive/2011/03/13/package-manager-console-for-more-than-managing-packages.aspx
+            $SolutionFolderGuid {
+                $sfold = get-interface $item.Object ([EnvDTE80.SolutionFolder])
+                write-host "solution folder" $item.Name $item.Kind
+                write-host $sFold
+                $containers += $item.ProjectItems
+                $subProject = $item.SubProject
+                if($subProject -ne $null){
+                    write-host "subproject!" $subProject.Name $subProject.Kind
+                }
+            }
+            # http://www.mztools.com/articles/2006/mz2006004.aspx
+            [EnvDTE.Constants]::vsProjectItemKindSubProject{
+                write-host "subproject " $item.Name $item.Kind
+            }
+            [EnvDTE.Constants]::vsProjectItemKindPhysicalFile{
+                write-host "physicalFile " $item.Name $item.Kind
+            }
+            $ProjectGuid {
+                write-host "project " $item.Name $item.Kind
+            }
+            default {
+                write-host "unknown" $item.Name $item.Kind
+            }
+        }
+    }
+    return $projects
+}
+
 # http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
 # http://blogs.interfacett.com/working-hierarchical-objects-powershell
 function GetUnversionedItems {
     $sln2 = get-interface $dte.Solution ([EnvDTE80.Solution2])
+    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+    #$sourceControl.IsItemUnderSCC((get-interface $dte.Solution ([EnvDTE80.Solution2])).Projects[0].FullName)
     $items = @()
     $items += $sln2.Projects
     write-host "starting with " $items.Length
