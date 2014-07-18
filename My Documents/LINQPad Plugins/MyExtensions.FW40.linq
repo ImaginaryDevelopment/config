@@ -76,22 +76,32 @@ public static class LambdaOp{
 	{
   		return a => b => f(a, b);
 	}
+	
+	public static Func<A,Func<B,Func<C,R>>> Curry<A,B,C,R>(this Func<A,B,C,R> f)
+	{
+		return a=> b => c => f(a,b,c);
+	}
+	
  	public static Func<B,C, R> Apply<A, B,C, R>(this Func<A, B,C, R> f, A a)
    	{
     	return (b,c) => f(a, b,c);
    	}
+	
    	public static Func<B, C,D, R> Apply<A, B, C,D, R>(this Func<A, B, C,D, R> f, A a)
    	{
     	return (b, c,d) => f(a, b, c,d);
    	}
+	
 	public static Func<B, R> Apply<A, B, R>(this Func<A, B, R> f, A a)
 	{
   		return b => f(a, b);
 	}
+	
 	public static Func<B, R> ApplyLast<A, B, R>(this Func<A, B, R> f, A a)
 	{
   		return b => f(a, b);
 	}
+	
 	//skip A for later
 	public static Func<B,C, D, A, R> Decline<A, B, C, D, R>(this Func<A, B, C, D, R> f)
     {
