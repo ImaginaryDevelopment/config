@@ -285,7 +285,6 @@ public static class MyExtensions
 	//public static class StringExtensions
 	#region StringExtensions
 
-	
 	///returns all tokens with the index of that token
 	public static IEnumerable<Tuple<string,int>> Tokenize(this string input,params string[]  tokens){
 		var matches = new Regex(tokens.Select (t => My.StringUtilities.RegexEncode(t)).Delimit("|")).Matches(input);
@@ -294,6 +293,7 @@ public static class MyExtensions
 			yield return new Tuple<string,int>(m.Value,m.Index);
 		}
 	}
+	
 	public static bool IsMatch(this string text, string pattern, bool ignoreCase)
 	{
     	return ignoreCase ? Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase) :
@@ -318,7 +318,6 @@ public static class MyExtensions
 	public static My.DirectoryPathWrapper AsDirPath(this string path){
 		return new My.DirectoryPathWrapper(path);
 	}
-	
 	
 	public static string WrapWith(this string txt, string delimiter){
 		if(txt==null)
@@ -350,6 +349,7 @@ public static class MyExtensions
 	{
 		return Regex.Replace(text,"\\s\\s+"," ");
 	}
+	
 	/// <summary>
 	/// Join a list of strings with a separator
 	/// From BReusable
@@ -402,7 +402,6 @@ public static class MyExtensions
 		return text.AfterLast(delimiter);
 	}
 	
-	
 	public static string AfterOrSelf(this string text, string delimiter)
 	{
 		if(text.Contains(delimiter)==false)
@@ -415,22 +414,27 @@ public static class MyExtensions
 	{
 		return string.IsNullOrEmpty(s);
 	}
+	
 	public static bool HasValue(this string s)
 	{
 		return !s.IsNullOrEmpty();
 	}
+	
 	public static string After(this string text, string delimiter,StringComparison? comparison=null)
 	{
 		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
 	}
+	
 	public static int StrComp(this String str1, String str2, bool ignoreCase)
 	{
 		return string.Compare(str1, str2, ignoreCase);
 	}
+	
 	public static bool IsIgnoreCaseMatch(this string s, string comparisonText)
     {
         return s.StrComp(comparisonText, true) == 0;
     }
+	
 	#endregion StringExtensions
 
 	//public static class EnumerableExtensions
@@ -450,6 +454,7 @@ public static class MyExtensions
             if (keySelector == null) throw new ArgumentNullException("keySelector");
             return DistinctByImpl(source, keySelector, comparer);
     }
+	
 	private static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
@@ -484,6 +489,7 @@ public static class MyExtensions
 			yield return sum;
 		}
 	}
+	
 	///<summary>
 	/// MyExtensions! Delimit aggregate a list of strings
 	///</summary>
@@ -529,6 +535,7 @@ public static class MyExtensions
 	public static bool Has<T>(this System.Enum type, T value) {     
         return (((int)(object)type & (int)(object)value) == (int)(object)value);   
     }
+	
 	//needs work, requires the type of T to be specified even though it's kinda there in the params
 	public static IEnumerable<T> ContainedValues<T>(this Enum flagEnum)
 		where T:struct
@@ -548,6 +555,7 @@ public static class MyExtensions
 		val.Dump(header);
 	return val;
 	}
+	
 	public static T DumpProp<T>(this T val, Func<T,object> accessor,string header=null){
 		accessor(val).Dump(header);
 		return val;
@@ -581,6 +589,7 @@ public class LinqpadStorage{
 }
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
+
  public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
             {
                 return e => PropertyOf(e).Name;
