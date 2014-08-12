@@ -643,6 +643,14 @@ public static class LinqOp{
       return (FieldInfo)body.Member;
  
    }
+   
+   public static Func<Expression<Func<T, object>>, bool> PropertyNameExistsHelper<T>(IEnumerable<string> keys)
+    {
+		var keyLookup = new HashSet<string>(keys);
+		var helper = PropertyNameHelper<T>();
+		Func<Expression<Func<T, object>>, bool> result = exp => keyLookup.Contains(helper(exp));
+		return result;
+    } 
 
 }
 
