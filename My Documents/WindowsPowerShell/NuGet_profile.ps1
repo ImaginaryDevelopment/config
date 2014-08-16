@@ -1,11 +1,12 @@
 # to enable better debugging:
 # set-psdebug -strict
-
+# to reload profile . $profile
 
 function GetPSLoadedAssemblies{
     #also Get-PSSnapin
     [appdomain]::currentdomain.getassemblies() | sort -property fullname
 }
+
 function Get-Batchfile ($file) {
     $cmd = "`"$file`" & set"
     cmd /c $cmd | Foreach-Object {
@@ -14,9 +15,13 @@ function Get-Batchfile ($file) {
     }
 }
   
-function VsVars32($version = "10.0")
+function VsVars32($version = "12.0")
 {
-    $key = "HKLM:SOFTWARE\Microsoft\VisualStudio\" + $version
+    if(test-path HKLM:\SOFTWARE\WOW6432NODE){
+        $key = "Registry::HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\" + $version
+    } else {
+        $key = "Registry::HKLM\SOFTWARE\Microsoft\VisualStudio\" + $version
+    }
     $VsKey = get-ItemProperty $key
     $VsInstallPath = [System.IO.Path]::GetDirectoryName($VsKey.InstallDir)
     $VsToolsDir = [System.IO.Path]::GetDirectoryName($VsInstallPath)
@@ -25,6 +30,11 @@ function VsVars32($version = "10.0")
     Get-Batchfile $BatchFile
     [System.Console]::Title = "Visual Studio " + $version + " Windows Powershell"
     #add a call to set-consoleicon as seen below...hm...!
+}
+function devenv($rootsuffix="Roslyn"){
+    VsVars32
+    # http://stackoverflow.com/a/23171639/57883
+    &"devenv /rootsuffix $rootsuffix"
 }
 
 function Invoke-SQL {
@@ -68,21 +78,18 @@ function Set-FontSize {
     )
    $dte.Properties("FontsAndColors", "TextEditor").Item("FontSize").Value = $Size
 }
-function ReloadProfile{
-    . $profile
-}
 
-$SolutionFolderGuid="{66A26720-8FB5-11D2-AA7E-00C04F688DDE}";
-$ProjectGuid="{66A26722-8FB5-11D2-AA7E-00C04F688DDE}";
-function GetSolutionProjects {
+function RecurseSolutionFolderProjects(){
     param(
-        $SourceControl = (get-interface $dte.SourceControl ([EnvDTE.SourceControl])),
-        $sln2 = (get-interface $dte.Solution ([EnvDTE80.Solution2])),
-        [Parameter(Mandatory=$false)]$items
-    )
-    #recursive
-    if(!($items)){
-        $items =[Array]$sln2.Projects
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $solutionFolder = $(throw "Please specify a solutionFolder")
+        )
+    $projectList = @()
+    for($i = 1; $i -le $solutionFolder.ProjectItems.Count; $i++){
+        $subProject = $solutionFolder.ProjectItems.Item($i).subProject
+        if($subProject -eq $null){
+            continue;
+        }
     }
     write-host "sln2 = $sln2" "SourceControl=$SourceControl" "items=$items" "projects = $sln2.Projects"
     #excludes solution folders and solution items
@@ -137,76 +144,140 @@ function GetSolutionProjects {
     return $projects
 }
 
-# http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
-# http://blogs.interfacett.com/working-hierarchical-objects-powershell
-function GetUnversionedItems {
-    $sln2 = get-interface $dte.Solution ([EnvDTE80.Solution2])
     $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
     #$sourceControl.IsItemUnderSCC((get-interface $dte.Solution ([EnvDTE80.Solution2])).Projects[0].FullName)
-    $items = @()
-    $items += $sln2.Projects
-    write-host "starting with " $items.Length
-    for($i =0; $i -lt $items.count; $i++)
-    {
 
-        $item=$items[$i]
-        if($item.ProjectItems.count -gt 0)
+        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
         {
-
-            $items += $item.ProjectItems
+            $projectList += RecurseSolutionFolderProjects($subProject)
+        } else {
+            $projectList += $subProject
         }
-        $kind = $item.Kind.ToString()
-        switch($kind){
-            $SolutionFolderGuid {write-host "Solution folder!" $item.Name $item.ProjectItems.Length }
-            $ProjectGuid {write-host "Project" $item.Name}
-            default {
-                write-host $item.Name " kind " $item.Kind
-            }
-        }
-        # write-host "checking " $item.Name " with kind " $kind.ToString() " against " $SolutionFolderGuid.ToString() " and " $ProjectGuid
-        if($kind -eq $SolutionFolderGuid.ToString()){
-            $slnFolder = get-interface $item ([EnvDTE80.SolutionFolder])
-                write-host "SolutionFolder" $item.Name $slnFolder
-                
-        }
-        if($item.Kind.ToString() -eq $ProjectGuid.ToString())
-        {
-                $project = get-interface $item ([EnvDTE.Project])
-                write-host "ProjectName" $item.Name $project
-                if($project -eq $null){
-                    continue
-                }
-                $items += $project.ProjectItems
-                write-host "ProjectName" $item.Name $project
-                if($item.IsItemUnderScc -ne $TRUE ){
-                    write-host $item.Properties
-                    if($item.FileCount -gt 0){
-
-                    write-host $item.Name $item.IsItemUnderScc $item.ProjectItems.count
-                    write-host $project.ProjectItems([int16]0) "104 pass!"
-                    } else {
-                        write-host $item.Name $item.IsItemUnderScc $item.FileNames([byte]0) "105 pass!"
-                    }
-                }
-        }
-         
-                # write-host "odd kind " $item.Name $item.Kind
-                #if($item.IsItemUnderScc -ne $TRUE ){
-                #    write-host $item.Name "unmatched guid" $item.Kind
-                #}
-            
-        
-        if($item.Name -ne "Miscellaneous Files"){
-            Foreach($projectItem in $item.ProjectItems){ 
-                # does not account for the possibility one of these items is a solution folder
-                if($projectItem.Kind.ToString() -ne $SolutionFolderGuid){
-
-                    if($projectItem.IsItemUnderScc -ne $TRUE ){
-                        write-host "unversioned project item" $item.Name $projectItem.Name
-                    }
-                }
-            }
-        }    
     }
-    write-host "Processed " $items.count
+    return $projectList
 }
+
+function GetProjectFileTypes(){
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
+    $files= GetProjectFiles $project
+    # http://stackoverflow.com/a/6000217/57883
+    write-debug ("item count = " + $files.Count)
+    $fileNames = $files | foreach-object { 
+        new-object psobject -property @{
+                FileName= $_.FileNames(0)
+                Extension =[System.IO.Path]::GetExtension($_.FileNames(0))
+        }}
+    #write-host $fileNames    
+    write-debug ("item count = " + $files.Count)
+    return $fileNames | Group-Object Extension | %{
+        New-Object psobject -Property @{Extension = $_.Name ;Count= $_.Count}
+    }
+}
+
+function GetSolutionProjects(){
+    $projects = get-interface $dte.Solution.Projects ([EnvDTE.Projects])
+    write-debug "projects=$projects"
+        #$result = new-object "System.Collections.Generic.List[System.Object]"
+    $result = new-object "System.Collections.Generic.List[EnvDTE.Project]"
+    foreach($project in $projects.GetEnumerator()) {
+            if($project -eq $null){
+                continue;
+            }
+
+            write-debug "yay project or solution folder! $project $project.Kind"
+            if($project.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder){
+                write-debug -message "Solution folder! '$project.Name'"
+
+                foreach($solutionFolderProject in RecurseSolutionFolderProjects($project)){
+                    $result+=$solutionFolderProject
+                }
+
+            } else {
+                write-debug "else! '$project.Name' '$project.Kind'"
+                $result+=$project
+            }
+    }
+    return $result
+}
+
+function RecurseDescendants(){
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $source  = $(throw "Please specify a source")
+        )
+    write-debug "starting RecurseDescendants"
+    $result = new-object "System.Collections.Generic.List[EnvDTE.ProjectItem]"
+    foreach($s in $source){
+        #write-host "working on " $s.Kind $s.Name $s.FileNames(0)
+
+        $pi = $s.Object -as [EnvDTE.ProjectItem]
+        $result+=$s
+        $children=$s.ProjectItems
+        foreach($child in RecurseDescendants($children)){
+            $result+=$child
+        }
+        write-debug "inner for each stopped"
+    }
+    write-debug "outer for each finished"
+    return $result
+}
+
+function GetProjectItems(){ 
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
+    if($project.ProjectItems.count -gt 0){
+        write-debug "getting project items for '$project.Name' '$project.ProjectName'"
+    }
+    #example: GetProjectItems((GetSolutionProjects).get_Item(1))
+    $result =RecurseDescendants($project.ProjectItems)
+    return $result
+}
+
+function GetProjectFiles(){
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
+
+    write-debug ("getting project files for " + $project.Name + " "+ $project.ProjectName)
+
+    $projectItems = RecurseDescendants($project.ProjectItems)
+    return $projectItems | Where-Object {$_.Kind -ne [EnvDTE.Constants]::vsProjectItemKindPhysicalFolder}
+}
+
+function GetUnversionedFiles(){
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $items = $(throw "Please specify items")
+        )
+    #GetUnversionedFiles(getprojectfiles((GetSolutionProjects).get_Item(0))) | format-table
+    write-host "checking for unversioned files"
+
+    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+    return $items | Where-Object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE }
+
+}
+
+function CheckProjectForMissingOrUnversioned(){
+    param(
+        [parameter(Position=0,ValueFromPipeline=$True)]
+        $project = $(throw "Please specify a project")
+        )
+
+    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+    $projectFiles = GetProjectFiles($project)
+    return $projectFiles | Where-object {$SourceControl.IsItemUnderSCC($_.FileNames(0)) -eq $FALSE -Or ((test-path -path $_.FileNames(0)) -ne $TRUE)}
+}
+# http://stackoverflow.com/questions/6460854/adding-solution-level-items-in-a-nuget-package
+# http://blogs.interfacett.com/working-hierarchical-objects-powershell
+
+# set-alias svc 'sc.exe' # doesn't work as I'd hoped
+ function GetServiceRunAs(){
+    param($computername = $(throw "please specify a computer name"))
+    return Get-WmiObject win32_service -filter "(StartName Like '%$runasuser%')" -ComputerName $computername -ErrorAction Stop | select name,startname
+    }
