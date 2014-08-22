@@ -1,7 +1,12 @@
 <Query Kind="Program">
+  <Reference>&lt;RuntimeDirectory&gt;\System.Net.Http.dll</Reference>
+  <Reference>&lt;ProgramFilesX86&gt;\Microsoft ASP.NET\ASP.NET MVC 4\Assemblies\System.Net.Http.Formatting.dll</Reference>
   <Reference>&lt;RuntimeDirectory&gt;\System.Runtime.InteropServices.dll</Reference>
+  <NuGetReference>Newtonsoft.Json</NuGetReference>
   <Namespace>Microsoft.Win32.SafeHandles</Namespace>
   <Namespace>System.Collections.ObjectModel</Namespace>
+  <Namespace>System.Net.Http</Namespace>
+  <Namespace>System.Net.Http.Formatting</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
 </Query>
 
@@ -562,6 +567,53 @@ public static class MyExtensions
 	}
 	
 	#endregion
+	
+	#region Serialization
+	
+	public static string Serialize<T>(this T value, MediaTypeFormatter formatter)
+        {
+            // http://www.asp.net/web-api/overview/formats-and-model-binding/json-and-xml-serialization
+            
+            string serialized;
+            using (var stream = new MemoryStream())
+            using (var content = new StreamContent(stream))
+            {
+                formatter.WriteToStreamAsync(
+                    typeof(T),
+                    value,
+                    stream,
+                    content,
+                    null).Wait();
+                stream.Position = 0;
+                serialized = content.ReadAsStringAsync().Result;
+            }
+            Trace.WriteLine("Serialized to " + serialized);
+            return serialized;
+        }
+		
+		public static IDictionary<string,Newtonsoft.Json.Linq.JToken> DeserializeToDictionary(string serialized, MediaTypeFormatter formatter){
+			using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write(serialized);
+                writer.Flush();
+                stream.Position = 0;
+                return formatter.ReadFromStreamAsync(typeof(IDictionary<string,Newtonsoft.Json.Linq.JToken>), stream, null, null).Result as IDictionary<string,Newtonsoft.Json.Linq.JToken>;
+            }
+		}
+        public static T Deserialize<T>(string serialized,MediaTypeFormatter formatter) where T : class
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write(serialized);
+                writer.Flush();
+                stream.Position = 0;
+                return formatter.ReadFromStreamAsync(typeof(T), stream, null, null).Result as T;
+            }
+        }
+	
+	#endregion
 }
 
 // You can also define non-static classes, enums, etc.
@@ -587,6 +639,7 @@ public class LinqpadStorage{
 	
 	
 }
+
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
 
