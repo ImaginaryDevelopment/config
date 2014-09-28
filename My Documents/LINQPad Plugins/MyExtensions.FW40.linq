@@ -1,7 +1,12 @@
 <Query Kind="Program">
+  <Reference>&lt;RuntimeDirectory&gt;\System.Net.Http.dll</Reference>
+  <Reference>&lt;ProgramFilesX86&gt;\Microsoft ASP.NET\ASP.NET MVC 4\Assemblies\System.Net.Http.Formatting.dll</Reference>
   <Reference>&lt;RuntimeDirectory&gt;\System.Runtime.InteropServices.dll</Reference>
+  <NuGetReference>Newtonsoft.Json</NuGetReference>
   <Namespace>Microsoft.Win32.SafeHandles</Namespace>
   <Namespace>System.Collections.ObjectModel</Namespace>
+  <Namespace>System.Net.Http</Namespace>
+  <Namespace>System.Net.Http.Formatting</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
 </Query>
 
@@ -45,6 +50,12 @@ void Main()
 	var stringHelper=My.LinqOp.PropertyNameHelper<string>();
 	Debug.Assert(stringHelper(s=>s.Length)=="Length","PropertyNameHelper no instance is not working");
 	Debug.Assert(My.LinqOp.MethodOf(()=>string.IsNullOrEmpty("")).Name=="IsNullOrEmpty");
+	
+	// Member // https://breusable.codeplex.com/SourceControl/latest#Trunk/BReusable/StaticReflection/Member.cs
+	Debug.Assert(My.Member.ValueName<string,int>(s=>s.Length)=="Length", "ValueName is not working");
+	Debug.Assert(My.Member.StaticValueName(()=>stringInstance.Length)=="Length", "StaticValueName null instance is not working");
+	Debug.Assert(My.Member.VariableName(() => stringInstance)=="stringInstance");
+	
 	//SplitWords
 	stringInstance="a bowl of cherries";
 	var expected=new []{"a", "bowl", "of" ,"cherries"};
@@ -175,6 +186,7 @@ public static class MyExtensions
 	public static TimeSpan Minutes(this int m){
 		return TimeSpan.FromMinutes(m);
 	}
+	
 	#region DateTimeExtensions
 	public static string ToTime(this DateTime dt){
 		return dt.ToString().After(" ");
@@ -204,6 +216,7 @@ public static class MyExtensions
         return dt.AddDays(-1 * diff).Date;
     }
 	#endregion
+	
 	public static bool NextBool(this Random rnd)
 	{
 		return rnd.NextDouble()>0.5;
@@ -501,7 +514,7 @@ public static class MyExtensions
 	private static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
-#if !NO_HASHSET
+		#if !NO_HASHSET
             var knownKeys = new HashSet<TKey>(comparer);
             foreach (var element in source)
             {
@@ -510,7 +523,7 @@ public static class MyExtensions
                     yield return element;
                 }
             }
-#else
+		#else
             //
             // On platforms where LINQ is available but no HashSet<T>
             // (like on Silverlight), implement this operator using 
@@ -520,12 +533,12 @@ public static class MyExtensions
             //
 
             return source.GroupBy(keySelector, comparer).Select(g => g.First());
-#endif
+		#endif
         }
 		
 	public static IEnumerable<int> CumulativeSum(this IEnumerable<int> source)
 	{
-	//http://stackoverflow.com/a/4831908/57883
+		//http://stackoverflow.com/a/4831908/57883
 		int sum=0;
 		foreach(var item in source){
 			sum+=item;
@@ -538,10 +551,7 @@ public static class MyExtensions
 	///</summary>
 	public static string Delimit(this IEnumerable<string> values, string delimiter)
 	{
-	    var enumerated = values.ToArray();
-            if (enumerated.Any() == false)
-		        return string.Empty;
-            return enumerated.Aggregate((s1, s2) => s1 + delimiter + s2);
+		return string.Join(delimiter,values);
 	}
 	
 	public static IEnumerable<T> Materialize<T>(this IEnumerable<T> set)
@@ -605,6 +615,98 @@ public static class MyExtensions
 	}
 	
 	#endregion
+	
+	#region Serialization
+	
+	public static string Serialize<T>(this T value, MediaTypeFormatter formatter)
+        {
+            // http://www.asp.net/web-api/overview/formats-and-model-binding/json-and-xml-serialization
+            
+            string serialized;
+            using (var stream = new MemoryStream())
+            using (var content = new StreamContent(stream))
+            {
+                formatter.WriteToStreamAsync(
+                    typeof(T),
+                    value,
+                    stream,
+                    content,
+                    null).Wait();
+                stream.Position = 0;
+                serialized = content.ReadAsStringAsync().Result;
+            }
+			
+            Trace.WriteLine("Serialized to " + serialized);
+            return serialized;
+        }
+		
+		public static IDictionary<string,object> DeserializeToDictionary(string serialized, MediaTypeFormatter formatter){
+			using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write(serialized);
+                writer.Flush();
+                stream.Position = 0;
+                return formatter.ReadFromStreamAsync(typeof(IDictionary<string,object>), stream, null, null).Result as IDictionary<string,object>;
+            }
+		}
+		
+        public static T Deserialize<T>(string serialized,MediaTypeFormatter formatter) where T : class
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write(serialized);
+                writer.Flush();
+                stream.Position = 0;
+                return formatter.ReadFromStreamAsync(typeof(T), stream, null, null).Result as T;
+            }
+        }
+	
+	#endregion
+	
+	#region DataExtensions
+	// http://madprops.org/blog/addwithvalue-via-extension-methods/
+	
+    public static int AddInputParameter<T>(this IDbCommand cmd, 
+        string name, T value) 
+    {
+        var p = cmd.CreateParameter();
+        p.ParameterName = name;
+        p.Value = value;
+        return cmd.Parameters.Add(p);
+    }
+
+    public static int AddInputParameter<T>(this IDbCommand cmd, 
+        string name, Nullable<T> value) where T : struct
+    {
+        var p = cmd.CreateParameter();
+        p.ParameterName = name;
+        p.Value = value.HasValue ? (object)value : DBNull.Value;
+        return cmd.Parameters.Add(p);
+    }
+
+    public static int AddInputParameter(this IDbCommand cmd, 
+        string name, string value) 
+    {
+        var p = cmd.CreateParameter();
+        p.ParameterName = name;
+        p.Value = string.IsNullOrEmpty(value) ? DBNull.Value : (object)value;
+        return cmd.Parameters.Add(p);
+    }
+
+    public static IDbDataParameter AddOutputParameter(this IDbCommand cmd, 
+        string name, DbType dbType)
+    {
+        var p = cmd.CreateParameter();
+        p.ParameterName = name;
+        p.DbType = dbType;
+        p.Direction = ParameterDirection.Output;
+        cmd.Parameters.Add(p);
+        return p;
+    }
+	
+	#endregion
 }
 
 // You can also define non-static classes, enums, etc.
@@ -614,7 +716,7 @@ public static class My{
 public class LinqpadStorage{
 
 	public string Path {get;private set;}
-	public string Value{get;set;}
+	public string Value {get;set;}
 	
 	public LinqpadStorage(string storageName){
 		var directory=Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -630,62 +732,64 @@ public class LinqpadStorage{
 	
 	
 }
+
 ///http://codebetter.com/patricksmacchia/2010/06/28/elegant-infoof-operators-in-c-read-info-of/
 public static class LinqOp{
 
- public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
-            {
-                return e => PropertyOf(e).Name;
-            }
+	public static Func<Expression<Func<T, object>>, string> PropertyNameHelper<T>()
+	{
+		return e => PropertyOf(e).Name;
+	}
+	
 	public static MethodInfo MethodOf<T>(Expression<Func<T>> expression) {
  
-      var body = (MethodCallExpression)expression.Body;
+    	var body = (MethodCallExpression)expression.Body;
  
-      return body.Method;
- 
-   }
+    	return body.Method;
+	}
+	
 	public static MethodInfo MethodOf(Expression<Action> expression) {
  
       var body = (MethodCallExpression)expression.Body;
  
       return body.Method;
+   	}
+	
+	public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> expression) {
  
-   }
+    	var body = (NewExpression)expression.Body;
  
-   public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> expression) {
- 
-      var body = (NewExpression)expression.Body;
- 
-      return body.Constructor;
- 
-   }
+    	return body.Constructor;
+	}
+   
  	public static PropertyInfo PropertyOf<T>(Expression<Func<T,object>> expression){
 		
 		 var memExp = (MemberExpression)MaybeUnary(expression);
 
 		return (PropertyInfo)memExp.Member;
 	}
+	
 	static Expression MaybeUnary<T>(Expression<T> exp){
 		Expression result;
 		var uExp = exp.Body as UnaryExpression;
         result = uExp != null ? uExp.Operand : exp.Body;
         return result;
 	}
-   public static PropertyInfo PropertyOf<T>(Expression<Func<T>> expression) {
+	
+	public static PropertyInfo PropertyOf<T>(Expression<Func<T>> expression) {
  
-      var body = (MemberExpression)expression.Body;
+    	var body = (MemberExpression)expression.Body;
  
-      return (PropertyInfo)body.Member;
+    	return (PropertyInfo)body.Member;
  
-   }
+	}
  
-   public static FieldInfo FieldOf<T>(Expression<Func<T>> expression) {
+   	public static FieldInfo FieldOf<T>(Expression<Func<T>> expression) {
  
-      var body = (MemberExpression)expression.Body;
+    	var body = (MemberExpression)expression.Body;
  
-      return (FieldInfo)body.Member;
- 
-   }
+      	return (FieldInfo)body.Member;
+   	}
    
    public static Func<Expression<Func<T, object>>, bool> PropertyNameExistsHelper<T>(IEnumerable<string> keys)
     {
@@ -694,7 +798,103 @@ public static class LinqOp{
 		Func<Expression<Func<T, object>>, bool> result = exp => keyLookup.Contains(helper(exp));
 		return result;
     } 
+	
+	
+}
 
+public static class Member{
+
+	/// <summary>
+	/// Get the name of a static field or property
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="fieldNameExpression"></param>
+	/// <returns></returns>
+	public static string StaticValueName(Expression<Func<object>> fieldNameExpression)
+	{
+		//return ((MemberExpression)fieldNameExpression.Body).Member.Name;
+		return GetMemberName(fieldNameExpression, false);
+	}
+		
+	/// <summary>
+	/// Gets the name of the Property or field
+	/// Does not include ExpressionName used in DataBinding
+	/// T.PropertyName1.PropertyName2 returns PropertyName2
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="expression"></param>
+	/// <returns></returns>
+	public static string ValueName<T, TResult>(Expression<Func<T, TResult>> expression)
+	{
+		return GetMemberName(expression.Body, false);
+	}
+	
+	/// <summary>
+	/// Get the name needed for databinding for a Property
+	/// If the expression is T.PropertyName.SubPropertyName
+	/// It would return PropertyName.SubPropertyName
+	/// This is necessary for proper databinding
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="expression"></param>
+	/// <returns></returns>
+	public static string ValueBindingName<T, TResult>(Expression<Func<T, TResult>> expression)
+	{
+		return GetMemberName(expression.Body, true);
+	}
+		
+	/// <summary>
+	/// Get the name of a variable (local, parameter, global, etc...)
+	/// Should be a simple ()=> variable;
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="expression"></param>
+	/// <returns></returns>
+	public static string VariableName(Expression<Func<object>> expression)
+	{
+		return GetMemberName(expression.Body, false);
+	}
+	
+	private static string GetMemberName(Expression expression, bool includeSuper)
+	{
+		switch (expression.NodeType)
+		{
+			case ExpressionType.MemberAccess:
+				var memberExpression = (MemberExpression)expression;
+				if (includeSuper == false)
+					return memberExpression.Member.Name;
+				var supername = GetMemberName(memberExpression.Expression, includeSuper);
+
+				if (String.IsNullOrEmpty(supername))
+					return memberExpression.Member.Name;
+
+				return String.Concat(supername, '.', memberExpression.Member.Name);
+
+			case ExpressionType.Call:
+				var callExpression = (MethodCallExpression)expression;
+				return callExpression.Method.Name;
+
+			case ExpressionType.Convert:
+				var unaryExpression = (UnaryExpression)expression;
+				return GetMemberName(unaryExpression.Operand, includeSuper);
+
+			case ExpressionType.Parameter:
+				//Parameter : foo => foo
+				//So this is for actual parameters of the lambda
+				return String.Empty;
+			case ExpressionType.Lambda: //ImaginaryDevelopment addition for method names
+				var lambdaExpression = (LambdaExpression)expression;
+				return GetMemberName(lambdaExpression.Body, includeSuper);
+			case ExpressionType.Constant:
+				//failed to find a way to get a constant's name
+				//return expression.ToString();
+			default:
+				throw new ArgumentException("The expression walk failed on unsupported node type:"+
+				expression.NodeType);
+		}
+	}	
 }
 
 public static class StringUtilities{
