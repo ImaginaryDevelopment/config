@@ -226,6 +226,7 @@ public static class MyExtensions
 	{
 		ps.StartInfo.Arguments=arguments;
 		ps.Start();
+		ps.Id.Dump("processId started");
 		var output=ps.StandardOutput.ReadtoEndAndDispose();
 		var errors=ps.StandardError.ReadtoEndAndDispose();
 	
@@ -1040,6 +1041,7 @@ public IEnumerable<Tuple<string,string>> GetJunctions(){
 	}
 }
 }
+
 #region PInvoke //http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=15633
 public static class PInvokeWrapper{
 
