@@ -391,6 +391,11 @@ public static class MyExtensions
 		return text.Substring(0,text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
 	}
 	
+	public static string After(this string text, string delimiter,StringComparison? comparison=null)
+	{
+		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
+	}
+	
 	public static string BeforeLast(this string text, string delimiter,StringComparison? comparison=null)
 	{
 		
@@ -434,10 +439,7 @@ public static class MyExtensions
 		return !s.IsNullOrEmpty();
 	}
 	
-	public static string After(this string text, string delimiter,StringComparison? comparison=null)
-	{
-		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
-	}
+
 	
 	public static int StrComp(this String str1, String str2, bool ignoreCase)
 	{
