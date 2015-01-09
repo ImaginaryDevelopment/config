@@ -50,7 +50,7 @@ mkdir -p "$STAGED"
 
 # LINQ code checks.
 LinqFiles="\.(linq)$"
-FUNCTIONS="<Server>|SRV|FSharpProgram"
+FUNCTIONS="<Server>|SVR|svrrbi"
 PATTERN="($FUNCTIONS)"
 #echo "diff files coming"
 #echo $DIFF_FILES
@@ -98,5 +98,5 @@ fi
 #rm -f $LINTLOG
 find "$STAGED" -type d -print0 | xargs -0r rmdir -p --ignore-fail-on-non-empty
 #temp while we check this script
-exit 1
+
 exit $EXIT
