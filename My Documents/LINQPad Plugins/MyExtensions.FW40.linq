@@ -182,6 +182,15 @@ public static class LinqOp{
 
 public static class MyExtensions
 {
+	//http://stackoverflow.com/a/1464929/57883
+	public static IEnumerable<T> Select<T>(this IDataReader reader,
+                                       Func<IDataReader, T> projection)
+	{
+		while (reader.Read())
+		{
+			yield return projection(reader);
+		}
+	}
 // Write custom extension methods here. They will be available to all queries.
 	public static TimeSpan Minutes(this int m){
 		return TimeSpan.FromMinutes(m);
@@ -342,6 +351,12 @@ public static class MyExtensions
 	//public static class StringExtensions
 	#region StringExtensions
 
+	public static My.FilePathWrapper ToTempFile(this string data){
+		var path = System.IO.Path.GetTempFileName();
+		System.IO.File.WriteAllText(path,data);
+		return new My.FilePathWrapper(path);
+	}
+	
 	///returns all tokens with the index of that token
 	public static IEnumerable<Tuple<string,int>> Tokenize(this string input,params string[]  tokens){
 		var matches = new Regex(tokens.Select (t => My.StringUtilities.RegexEncode(t)).Delimit("|")).Matches(input);
@@ -434,6 +449,11 @@ public static class MyExtensions
 		return text.Substring(0,text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture));
 	}
 	
+	public static string After(this string text, string delimiter,StringComparison? comparison=null)
+	{
+		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
+	}
+	
 	public static string BeforeLast(this string text, string delimiter,StringComparison? comparison=null)
 	{
 		
@@ -477,10 +497,7 @@ public static class MyExtensions
 		return !s.IsNullOrEmpty();
 	}
 	
-	public static string After(this string text, string delimiter,StringComparison? comparison=null)
-	{
-		return text.Substring( text.IndexOf(delimiter,comparison?? StringComparison.CurrentCulture)+delimiter.Length);
-	}
+
 	
 	public static int StrComp(this String str1, String str2, bool ignoreCase)
 	{
@@ -714,6 +731,12 @@ public static class MyExtensions
 ///bucket for generic stuff that wasn't an extension method
 public static class My{
 
+	public static Hyperlinq ProcessStartLink(string fileName, string formattedArguments, string linkText){
+		linkText = linkText ?? fileName;
+		var safeFileName = (fileName.Contains("\\")? "@":string.Empty) +  "\""+ fileName+ "\"";
+		return new Hyperlinq( QueryLanguage.Expression, "System.Diagnostics.Process.Start("+safeFileName+",@\""+formattedArguments+"\")",linkText);
+	}
+	
 public class LinqpadStorage{
 
 	public string Path {get;private set;}
@@ -989,6 +1012,7 @@ public DirectoryPathWrapper(string path) :base(path){}
 public string PathCombine(string otherPath){
 	return System.IO.Path.Combine(this.RawPath,otherPath);
 }
+
 static IEnumerable<string> GetFiles(string startDir, string wildcard=null){ //recursive
 	IEnumerable<string> files=null;
 	try
