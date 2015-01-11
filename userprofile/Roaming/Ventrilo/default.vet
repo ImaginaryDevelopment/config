@@ -1,0 +1,31 @@
+# This file defines the text-to-speech messages that are played when
+# certain events occur inside the Ventrilo program. Some of the entries
+# will contain program replacement strings that look like "%s". In
+# these cases the program will fill in details about the users
+# name, the comment they made or other details. You can have text before
+# or after them but you can not change the order that they are used.
+# i.e. in the _COMMENTED_ key there are 2 %s's. The first %s will always
+# be the users name and the second %s will be their comment.
+
+
+[Text]
+
+SOUNDDISABLED=Sound disabled
+SOUNDFUNCTIONAL=Sound functional
+MICROPHONEDISABLED=Microphone disabled
+MICROPHONEFUNCTIONAL=Microphone functional
+BINDSDISABLED=Binds disabled
+BINDSFUNCTIONAL=Binds functional
+DISCONNECTEDFROMSERVER=Disconnected from server
+CONNECTEDTOSERVER=Connected to server
+NOWINTHELOBBY=Now in the lobby
+NOWINTHE_CHANNEL=Now in the %s channel
+YOUHAVESWITCHEDCHANNELS=You have switched channels
+_HASLEFTTHESERVER=%s has left the server
+_HASCONNECTED=%s has connected
+_COMMENTED_=%s commented. %s
+_COMMENTED=%s commented.
+_HAS_THECHANNEL=%s has %s the channel.
+USINGBINDS_=Using binds %s
+PRIVAVECHATFROM_=Private chat from %s
+
