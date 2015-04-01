@@ -477,7 +477,42 @@ public static class MyExtensions
     {
             return source.DistinctBy(keySelector, null);
     }
-		
+	
+	public static IEnumerable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<KeyValuePair<string,bool>> orderings, Func<string,string> selectionToOutputMapper)
+    {
+       var inThenBy = false;
+       var sortable = source;
+       
+       foreach (var ordering in orderings)
+       {
+           var targetProp = selectionToOutputMapper(ordering.Key);
+           
+           if (targetProp.IsNullOrEmpty() == false)
+           {
+               sortable = SortBy(sortable, targetProp, inThenBy, ordering.Value);
+               inThenBy = true;
+           }
+       }
+       var sorted = sortable.ToList();
+       return sorted;
+    }
+	// David Fowler - http://weblogs.asp.net/davidfowler/dynamic-sorting-with-linq
+	public static IQueryable<T> SortBy<T>(this IQueryable<T> source, string propertyName, bool thenBy, bool desc)
+    {
+       if (source == null)
+           throw new ArgumentNullException("source");
+       if (string.IsNullOrEmpty(propertyName))
+           return source;
+
+       ParameterExpression par = Expression.Parameter(source.ElementType, String.Empty);
+       MemberExpression prop = Expression.Property(par, propertyName);
+       LambdaExpression lambda = Expression.Lambda(prop, par);
+       string methodName = (thenBy ? "ThenBy" : "OrderBy") + (desc ? "Descending" : string.Empty);
+       Expression methodCallExpression = Expression.Call(typeof(Queryable), methodName, new Type[] { source.ElementType, prop.Type },
+           source.Expression, Expression.Quote(lambda));
+       return source.Provider.CreateQuery<T>(methodCallExpression);
+    }
+	
 	public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
     {
@@ -486,7 +521,7 @@ public static class MyExtensions
             return DistinctByImpl(source, keySelector, comparer);
     }
 	
-	private static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
+	static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
 		#if !NO_HASHSET
