@@ -351,14 +351,16 @@ public static class MyExtensions
 	//public static class StringExtensions
 	#region StringExtensions
 
-	public static My.FilePathWrapper ToTempFile(this string data){
+	public static My.FilePathWrapper ToTempFile(this string data)
+	{
 		var path = System.IO.Path.GetTempFileName();
 		System.IO.File.WriteAllText(path,data);
 		return new My.FilePathWrapper(path);
 	}
 	
 	///returns all tokens with the index of that token
-	public static IEnumerable<Tuple<string,int>> Tokenize(this string input,params string[]  tokens){
+	public static IEnumerable<Tuple<string,int>> Tokenize(this string input,params string[]  tokens)
+	{
 		var matches = new Regex(tokens.Select (t => My.StringUtilities.RegexEncode(t)).Delimit("|")).Matches(input);
 		//matches.Dump();
 		foreach(Match m in matches){
@@ -371,11 +373,13 @@ public static class MyExtensions
     	return ignoreCase ? Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase) :
         Regex.IsMatch(text, pattern);
 	}
+	
 	public static byte[] ToByteArrayFromAscii(this string text)
 	{
 	    var encoding = new ASCIIEncoding();
 		return encoding.GetBytes(text);
 	}
+	
 	///<summary>
 	///Assumes Ascii!
 	///</summary>
@@ -384,25 +388,33 @@ public static class MyExtensions
 		var encoding = new ASCIIEncoding();
 	    return encoding.GetString(buffer);
 	}
-	public static My.FilePathWrapper AsFilePath(this string path){
+	
+	public static My.FilePathWrapper AsFilePath(this string path)
+	{
 		return new My.FilePathWrapper(path);
 	}
-	public static My.DirectoryPathWrapper AsDirPath(this string path){
+	
+	public static My.DirectoryPathWrapper AsDirPath(this string path)
+	{
 		return new My.DirectoryPathWrapper(path);
 	}
 	
-	public static string WrapWith(this string txt, string delimiter){
+	public static string WrapWith(this string txt, string delimiter)
+	{
 		if(txt==null)
 		return txt;
 		return delimiter+txt+delimiter;
 	}
-	public static bool Contains(this string text,string value,StringComparison comparison){
+	public static bool Contains(this string text,string value,StringComparison comparison)
+	{
 		return text.IndexOf(value,comparison)>=0;
 	}
+	
 	public static string[] SplitLines(this string text)
 	{
 		return text.Split(new string[] {"\r\n","\n"}, StringSplitOptions.None);
 	}
+	
 	public static T? ParseEnum<T>(this String enumString) where T : struct
 	{
 		if (Enum.IsDefined(typeof(T), enumString))
@@ -410,10 +422,13 @@ public static class MyExtensions
 		return new T?();
 	}
 	
-	public static IEnumerable<string> RegexSplit(this string text,string pattern){
+	public static IEnumerable<string> RegexSplit(this string text,string pattern)
+	{
 		return Regex.Split(text,pattern);
 	}
-	public static IEnumerable<string> SplitWords(this string text){
+	
+	public static IEnumerable<string> SplitWords(this string text)
+	{
 		return text.RegexSplit("\\W+");
 	}
 	
@@ -497,7 +512,15 @@ public static class MyExtensions
 		return !s.IsNullOrEmpty();
 	}
 	
-
+	public static string SurroundWith(this string s,string wrapper)
+	{
+		return wrapper + s + wrapper;
+	}
+	
+	public static string SurroundWith(this string s,string opener, string closer)
+	{
+		return opener + s + closer;
+	}
 	
 	public static int StrComp(this String str1, String str2, bool ignoreCase)
 	{
@@ -514,13 +537,99 @@ public static class MyExtensions
 	//public static class EnumerableExtensions
 	#region EnumerableExtensions
 	
+	public static void CheckDuplicates<T>(this IEnumerable<T> items, IEqualityComparer<T> comparer, string message, bool throwOnDupes = true){
+		if(items.Count() != items.Distinct(comparer).Count())
+		{
+			(from i in items.Distinct(comparer)
+			let count = items.Count(s =>comparer.Equals( s,i))
+			where count > 1
+			select i).Dump(message);
+			if(throwOnDupes)
+				throw new InvalidOperationException(message);
+		}
+	}
+	
+	public static void CheckDuplicates<T>(this IEnumerable<T> items, string message, bool throwOnDupes = true)
+		where T:IEquatable<T>
+	{
+		if(items.Count() != items.Distinct().Count())
+		{
+			(from i in items.Distinct()
+			let count = items.Count(s => s.Equals(i))
+			where count > 1
+			select i).Dump(message);
+			if(throwOnDupes)
+				throw new InvalidOperationException(message);
+		}
+	}
+	
+//	public static void CheckDuplicates<T>(this IEnumerable<T> items,string message,bool throwOnDupes = true)
+//		where T:IEquatable<T>
+//	{
+//		CheckDuplicates(items, (x,y) => x.Equals(y),message,throwOnDupes);
+//	}
+	
+//	public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> items, Func<TSource,TSource,bool> comparer){
+//		return items.Distinct( new FuncEqualityComparer<TSource>(comparer));
+//	}
+//	
+//	private class FuncEqualityComparer<T> : IEqualityComparer<T>{
+//		readonly Func<T,T,bool> _comparer;
+//		public FuncEqualityComparer(Func<T,T,bool> comparer){
+//			_comparer = comparer;
+//		}
+//		public bool Equals(T b1, T b2){
+//			return _comparer(b1,b2);
+//		}
+//		
+//		public int GetHashCode(T item){
+//			return item.GetHashCode();
+//		}
+//		
+//		
+//	}
 	//https://code.google.com/p/morelinq/source/browse/MoreLinq/DistinctBy.cs
 	public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector)
     {
             return source.DistinctBy(keySelector, null);
     }
-		
+	
+	public static IEnumerable<T> SortBy<T>(this IQueryable<T> source, IEnumerable<KeyValuePair<string,bool>> orderings, Func<string,string> selectionToOutputMapper)
+    {
+       var inThenBy = false;
+       var sortable = source;
+       
+       foreach (var ordering in orderings)
+       {
+           var targetProp = selectionToOutputMapper(ordering.Key);
+           
+           if (targetProp.IsNullOrEmpty() == false)
+           {
+               sortable = SortBy(sortable, targetProp, inThenBy, ordering.Value);
+               inThenBy = true;
+           }
+       }
+       var sorted = sortable.ToList();
+       return sorted;
+    }
+	// David Fowler - http://weblogs.asp.net/davidfowler/dynamic-sorting-with-linq
+	public static IQueryable<T> SortBy<T>(this IQueryable<T> source, string propertyName, bool thenBy, bool desc)
+    {
+       if (source == null)
+           throw new ArgumentNullException("source");
+       if (string.IsNullOrEmpty(propertyName))
+           return source;
+
+       ParameterExpression par = Expression.Parameter(source.ElementType, String.Empty);
+       MemberExpression prop = Expression.Property(par, propertyName);
+       LambdaExpression lambda = Expression.Lambda(prop, par);
+       string methodName = (thenBy ? "ThenBy" : "OrderBy") + (desc ? "Descending" : string.Empty);
+       Expression methodCallExpression = Expression.Call(typeof(Queryable), methodName, new Type[] { source.ElementType, prop.Type },
+           source.Expression, Expression.Quote(lambda));
+       return source.Provider.CreateQuery<T>(methodCallExpression);
+    }
+	
 	public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
     {
@@ -529,7 +638,7 @@ public static class MyExtensions
             return DistinctByImpl(source, keySelector, comparer);
     }
 	
-	private static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
+	static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
 		#if !NO_HASHSET
