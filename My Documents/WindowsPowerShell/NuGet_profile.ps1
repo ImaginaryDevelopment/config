@@ -144,18 +144,18 @@ function RecurseSolutionFolderProjects(){
     return $projects
 }
 
-    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
-    #$sourceControl.IsItemUnderSCC((get-interface $dte.Solution ([EnvDTE80.Solution2])).Projects[0].FullName)
+#    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+#    #$sourceControl.IsItemUnderSCC((get-interface $dte.Solution ([EnvDTE80.Solution2])).Projects[0].FullName)
 
-        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
-        {
-            $projectList += RecurseSolutionFolderProjects($subProject)
-        } else {
-            $projectList += $subProject
-        }
-    }
-    return $projectList
-}
+#        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
+#        {
+#            $projectList += RecurseSolutionFolderProjects($subProject)
+#        } else {
+#            $projectList += $subProject
+#        }
+#    }
+#    return $projectList
+#}
 
 function GetProjectFileTypes(){
     param(
