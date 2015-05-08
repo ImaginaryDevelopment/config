@@ -45,9 +45,11 @@ My Documents/Remote Assistance Logs/
 *.jpg
 *.jpeg
 *.zip
+My Documents/DEV/
 *.mp4
 *.tif
 *.pdf
+My Documents/HardwareHelper/
 *.pfx
 *.docx
 My Documents/*.dat
