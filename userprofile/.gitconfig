@@ -2,17 +2,22 @@
 	default = current
 [alias]
 	unpushed = log --branches --not --remotes --oneline --simplify-by-decoration --decorate
-[push]
-	default = current
-[alias]
-	unpushed = log --branches --not --remotes --oneline --simplify-by-decoration --decorate
-[core]
-	autocrlf = false
-	excludesfile = ~/.gitignore
-[user]
-	name = BCD
-	email = bdimperio@mortgageflex.com
+[merge]
+	tool = kdiff3
+[mergetool "kdiff3"]
+	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
 [diff]
+	tool = kdiff3
 	guitool = kdiff3
 [difftool "kdiff3"]
 	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
+[core]
+	editor = \"C:/Program Files (x86)/GitExtensions/GitExtensions.exe\" fileeditor
+	autocrlf = false
+[credential]
+	helper = !\\\"C:/Program Files (x86)/GitExtensions/GitCredentialWinStore/git-credential-winstore.exe\\\"
+[user]
+	name = ImaginaryDevelopment
+	email = " imaginarydevelopment@googlemail"
+[mergetool]
+	keepBackup = false

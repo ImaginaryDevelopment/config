@@ -1,0 +1,8 @@
+{
+	"font_size": 12,
+	"ignore_inodes": true,
+	"ignored_packages":
+	[
+		"Vintage"
+	]
+}

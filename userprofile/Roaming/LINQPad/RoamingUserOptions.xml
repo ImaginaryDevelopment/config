@@ -3,5 +3,6 @@
   <DefaultQueryLanguage>Expression</DefaultQueryLanguage>
   <DisableLambdaSnippets>true</DisableLambdaSnippets>
   <MaxQueryRows>1000</MaxQueryRows>
-  <NoNativeKeysQuestion>true</NoNativeKeysQuestion>
+  <ShowLineNumbersInEditor>true</ShowLineNumbersInEditor>
+  <UseStableOutputAssemblyName>true</UseStableOutputAssemblyName>
 </UserOptions>

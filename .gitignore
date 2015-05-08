@@ -7,6 +7,8 @@ My Documents/OneNote Notebooks/
 My Documents/Visual Studio 2010/
 My Documents/Visual Studio 2008/
 My Documents/Visual Studio*
+!My Documents/Visual Studio*/Code Snippets/*
+!My Documents/Visual Studio*/My Exported Templates/*
 userprofile/Roaming/JetBrains/
 userprofile/Roaming/LINQPad/ConnectionsV2.xml
 userprofile/Roaming/LINQPad/Nutshell.mdf
@@ -51,34 +53,70 @@ My Documents/HardwareHelper/
 *.pfx
 *.docx
 My Documents/*.dat
+
+My Documents/IISExpress/Logs/
+My Documents/IISExpress/TraceLogFiles/
+My Documents/Fiddler2/
 userprofile/Roaming/Adobe/
-userprofile/Roaming/Apple Computer/
-userprofile/Roaming/MonoDevelop-Unity-2.8/
-userprofile/Roaming/NVIDIA/
-userprofile/Roaming/vlc/
-userprofile/Roaming/LINQPad/RecentServers.txt
 userprofile/Roaming/Sublime Text 2/Backup/
-userprofile/Roaming/tangible T4 Editor 2010/
-userprofile/Roaming/Subversion/
-userprofile/Roaming/Notepad++/
-userprofile/Roaming/TS3Client/
-userprofile/Roaming/Mozilla/
-userprofile/Roaming/Unity/
-userprofile/Roaming/Winamp/
-userprofile/Roaming/Ustream Producer/
-userprofile/Roaming/Ventrilo/
-userprofile/Roaming/TortoiseSVN/
-userprofile/Roaming/InstallShield Installation Information/
-userprofile/Roaming/DivX/
-*.ogg
-userprofile/Roaming/GameMaker-Studio/
-Cache/
-userprofile/Roaming/Quest Software/
-temp/
-*.wav
-cached/
-lib/
-libs/
-userprofile/Roaming/Yuuguu/
-npm-cache/
-*Game*
+userprofile/Roaming/vlc/
+userprofile/Roaming/npm-cache/
+userprofile/Roaming/npm/node_modules
+userprofile/Roaming/ChocolateyGUI/Logs/
+*.nupkg
+userprofile/appdata/roaming/GitExtensions/GitExtensions/GitExtensions.settings.backup
+userprofile/appdata/roaming/Macromedia/
+userprofile/appdata/roaming/Glimpse/
+userprofile/appdata/roaming/Microsoft/Crypto/
+userprofile/appdata/roaming/Sublime Text 2/Pristine Packages/
+userprofile/appdata/roaming/Skype/
+userprofile/appdata/roaming/JetBrains/ReSharper/vAny/*.Tmp
+userprofile/appdata/roaming/Sublime Text 2/Backup/
+userprofile/appdata/roaming/Microsoft/Windows/Start Menu/
+userprofile/appdata/roaming/Microsoft/VisualStudio/
+userprofile/appdata/roaming/Microsoft/Windows/Recent/
+userprofile/appdata/roaming/Mozilla/Firefox/Profiles/
+userprofile/appdata/roaming/Microsoft/Office/
+userprofile/appdata/roaming/GitExtensions/GitExtensions/Recent/
+userprofile/appdata/roaming/Microsoft/Bibliography/
+userprofile/appdata/roaming/Microsoft/Credentials/
+userprofile/appdata/roaming/Microsoft/Document Building Blocks/
+userprofile/appdata/roaming/Microsoft/Microsoft SQL Server/
+userprofile/appdata/roaming/Microsoft/Excel/
+userprofile/appdata/roaming/Microsoft/IME/
+userprofile/appdata/roaming/Microsoft/Protect/
+userprofile/appdata/roaming/Microsoft/SystemCertificates/
+userprofile/appdata/roaming/Microsoft/Templates/
+userprofile/appdata/roaming/Microsoft/VWDExpress/
+userprofile/appdata/roaming/Microsoft/Windows/SendTo/
+userprofile/appdata/roaming/Microsoft/Outlook/
+userprofile/appdata/roaming/Telerik/Installer/
+userprofile/appdata/roaming/Microsoft/Windows/
+userprofile/appdata/roaming/Microsoft/Spelling/
+userprofile/appdata/roaming/Microsoft/UProof/
+userprofile/appdata/roaming/vlc/
+userprofile/appdata/roaming/Microsoft/Microsoft Visual Studio/*/*.bin
+userprofile/appdata/roaming/Mozilla/Firefox/Crash Reports/
+userprofile/appdata/roaming/LINQPad/
+!userprofile/appdata/roaming/LINQPad/RoamingUserOptions.xml
+userprofile/appdata/roaming/GitExtensions/GitExtensions/
+userprofile/appdata/roaming/Microsoft/MMC/
+userprofile/appdata/roaming/Microsoft/Speech/
+userprofile/appdata/roaming/Microsoft/Network/
+userprofile/appdata/roaming/Mozilla/Firefox/profiles.ini
+userprofile/appdata/roaming/Sublime Text 2/Installed Packages/*.sublime-package
+userprofile/appdata/roaming/Microsoft/OneNote/*/Preferences.dat
+userprofile/appdata/roaming/JetBrains/PermanentUserId
+userprofile/appdata/roaming/JetBrains/dotPeek/vAny/GlobalSettingsStorage.DotSettings
+userprofile/appdata/roaming/Sublime Text 2/Packages/*
+!userprofile/appdata/roaming/Sublime Text 2/Packages/User
+userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.cache
+userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.last-run
+userprofile/appdata/roaming/Microsoft/Internet Explorer/
+userprofile/appdata/roaming/Codealike/TrackerCache/
+userprofile/appdata/roaming/winscp.rnd
+userprofile/appdata/roaming/GitHub/*.db
+userprofile/Roaming/LINQPad/RecentQueries.txt
+userprofile/Roaming/bower/cache/
+userprofile/Roaming/Sublime Text 3/Backup/
+userprofile/Roaming/Sublime Text 3/Packages/

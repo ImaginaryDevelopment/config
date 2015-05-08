@@ -1,0 +1,13 @@
+{
+  "cmd": ["C:/Program Files/nodejs/node.exe","protractor","C:/projects/javascript/protractor/myConfBatch.js", "--specs","$file"],
+  "shell":true,
+  "encoding": "cp1252",
+  "windows":
+    {
+    	"cmd": ["taskkill /F /IM node.exe & node", "$file"]
+    },
+  "linux":
+    {
+        "cmd": ["killall node; node", "$file"]
+    }
+}
