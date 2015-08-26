@@ -3,25 +3,21 @@
 void Main()
 {
 }
-	public abstract class BusinessObject<T> where T : BusinessObject<T>, new()
+	public abstract class BusinessObject<T> where T : BusinessObject<T>
 	    {
-	        #region Member Variables
+	        #region Constructor
 	
 	        /// <summary>
-	        /// Object that acts as a lock when retrieving or creating the singleton instance.
+	        /// Initializes a new instance of the <see cref="BusinessObject"/> class.
 	        /// </summary>
-	        private static object singletonLock = new object();
+	        protected BusinessObject(string connectionString)
+	        {
+	            ConnectionString = connectionString;
+	        }
 	
-	        /// <summary>
-	        /// Singleton instance of this business object with default connection string.
-	        /// </summary>
-	        private static T instance;
+	        #endregion Constructor
 	
-	        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-	
-	        #endregion Member Variables
-	
-	        #region Properties
+	   		#region Properties
 	
 	        /// <summary>
 	        /// Gets the connection string.  
@@ -29,59 +25,10 @@ void Main()
 	        /// <value>The connection string.</value>
 	        public virtual string ConnectionString { get; protected set; }
 	
-	        /// <summary>
-	        /// Default connection string for business object.
-	        /// </summary>
-	        protected virtual string DefaultConnectionString { get { return ConfigurationManager.ConnectionStrings["LocalSqlConnection"].ConnectionString; } }
-	
-	        /// <summary>
-	        /// Creates or retrieves the singleton instance of this business object.
-	        /// </summary>
-	        public static T Instance { get { return GetInstance(); } }
-	
-	        protected static log4net.ILog Log { get { return log; } }
-	
 	        #endregion Properties
 	
-	        #region Constructor
-	
-	        /// <summary>
-	        /// Initializes a new instance of the <see cref="BusinessObject"/> class.
-	        /// </summary>
-	        protected BusinessObject()
-	        {
-	            ConnectionString = DefaultConnectionString;
-	        }
-	
-	        #endregion Constructor
 	
 	        #region Methods
-	
-	        /// <summary>
-	        /// Returns singleton business object using default connection string.
-	        /// </summary>
-	        public static T GetInstance()
-	        {
-	            if (instance != null)
-	                return instance;
-	
-	            // If instance has not been created, create new instance (with thread-safe lock).
-	            lock (singletonLock)
-	            {
-	                if (instance == null)
-	                    instance = new T();
-	            }
-	
-	            return instance;
-	        }
-	
-	        /// <summary>
-	        /// Returns new instance of business object using custom connection string.
-	        /// </summary>
-	        public static T GetInstance(string connectionString)
-	        {
-	            return new T() { ConnectionString = connectionString };
-	        }
 	
 	        protected virtual void UseConnection(Action withConnectionAction, SqlConnection conn)
 	        {
