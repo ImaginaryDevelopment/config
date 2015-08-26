@@ -15,7 +15,10 @@ void Main()
 	// for pushing local to lisa
 	var app = this.Connection.ConnectionString.Split(new[] { ';' }).Select(a => a.Split(new[] { '='})).Last().Last();
 	
-	
+	var csLisa = @"Data Source=192.168.0.190;User ID=sa;Password=;Initial Catalog=ApplicationDatabase;App=" + app; 
+	//@"Data Source=(local);Integrated Security=SSPI;Initial Catalog=PmRewriteApplicationDatabase"
+	var sb = new StringBuilder();
+	try
 	using (var cn = new SqlConnection(csLisa))
 	{
 		cn.Open();
@@ -38,7 +41,7 @@ void Main()
 				
 			foreach (var c in Codes)
 			{
-				var sb = new StringBuilder(cmdText);
+				var cmdLiteral = cmdText;
 				
 				foreach (var p in @params)
 				{
@@ -46,13 +49,20 @@ void Main()
 					var sqlParam = cmd.Parameters["@"+p.Name];
 					sqlParam.Value = value == null? System.DBNull.Value:value;
 					var valueText = GetLiteral(p.FieldType, sqlParam.Value);
-					sb.Replace("@"+p.Name,valueText).ToString();
+					cmdLiteral = cmdLiteral.Replace("@"+p.Name,valueText);
 				}
-				sb.ToString().Dump("cmdLiteral");
+				sb.AppendLine(cmdLiteral);
 				cmd.ExecuteNonQuery();
 			}
 		}
+
 	}
+    finally
+	{
+		sb.ToString().OnDemand().Dump("raw command text log");
+	}
+	
+	
 }
 
 public static string GetLiteral(Type type, object obj)
