@@ -90,16 +90,72 @@ function RecurseSolutionFolderProjects(){
         if($subProject -eq $null){
             continue;
         }
+    }
+    write-host "sln2 = $sln2" "SourceControl=$SourceControl" "items=$items" "projects = $sln2.Projects"
+    #excludes solution folders and solution items
+    $containers = New-Object System.Collections.Generic.List[EnvDTE.ProjectItems]
+    foreach($item in $items){
+        $project =get-interface $item ([EnvDTE.Project])
+        $projectItem = get-interface $item ([EnvDTE.ProjectItem])
 
-        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
-        {
-            $projectList += RecurseSolutionFolderProjects($subProject)
-        } else {
-            $projectList += $subProject
+        if($project -ne $null){
+            $projectItems =get-interface $project.ProjectItems ([EnvDTE.ProjectItems])
+            $containers.Add($projectItems)
+            if($project.SubProject -ne $null){
+                write-host "sub project! " $project.SubProject
+            }
+        }
+        if($projectItem -ne $null -and $projectItem.ProjectItems.count -gt 0){
+            $containers.Add($projectItem.ProjectItems)
         }
     }
-    return $projectList
+    write-host $containers
+    
+    for($i=1; $i -lt $containers.count; $i++){
+        # $[EnvDTE.Constants] | get-member -static
+        write-host "index is " $i
+        $item = $containers[$i]
+        switch($item.Kind.ToString()){ # http://geekswithblogs.net/michelotti/archive/2011/03/13/package-manager-console-for-more-than-managing-packages.aspx
+            $SolutionFolderGuid {
+                $sfold = get-interface $item.Object ([EnvDTE80.SolutionFolder])
+                write-host "solution folder" $item.Name $item.Kind
+                write-host $sFold
+                $containers += $item.ProjectItems
+                $subProject = $item.SubProject
+                if($subProject -ne $null){
+                    write-host "subproject!" $subProject.Name $subProject.Kind
+                }
+            }
+            # http://www.mztools.com/articles/2006/mz2006004.aspx
+            [EnvDTE.Constants]::vsProjectItemKindSubProject{
+                write-host "subproject " $item.Name $item.Kind
+            }
+            [EnvDTE.Constants]::vsProjectItemKindPhysicalFile{
+                write-host "physicalFile " $item.Name $item.Kind
+            }
+            $ProjectGuid {
+                write-host "project " $item.Name $item.Kind
+            }
+            default {
+                write-host "unknown" $item.Name $item.Kind
+            }
+        }
+    }
+    return $projects
 }
+
+#    $SourceControl = get-interface $dte.SourceControl ([EnvDTE.SourceControl])
+#    #$sourceControl.IsItemUnderSCC((get-interface $dte.Solution ([EnvDTE80.Solution2])).Projects[0].FullName)
+
+#        if($subProject.Kind -eq [EnvDTE80.ProjectKinds]::vsProjectKindSolutionFolder)
+#        {
+#            $projectList += RecurseSolutionFolderProjects($subProject)
+#        } else {
+#            $projectList += $subProject
+#        }
+#    }
+#    return $projectList
+#}
 
 function GetProjectFileTypes(){
     param(

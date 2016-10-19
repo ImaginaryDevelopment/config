@@ -63,7 +63,56 @@ userprofile/Roaming/vlc/
 userprofile/Roaming/npm-cache/
 userprofile/Roaming/npm/node_modules
 userprofile/Roaming/ChocolateyGUI/Logs/
+userprofile/Roaming/.minecraft/assets/*
 *.nupkg
+userprofile/Roaming/.minecraft/libraries/*
+userprofile/Roaming/.minecraft/mods/*
+userprofile/Roaming/.minecraft/resources/*
+userprofile/Roaming/.minecraft/*.log*
+userprofile/Roaming/.minecraft/
+userprofile/Roaming/BigHugeEngine/
+userprofile/Roaming/Broken Rules/And Yet It Moves Steam/
+userprofile/Roaming/Awesomium/
+userprofile/Roaming/CodeRush for VS .NET/1.1/AssemblyCache/
+userprofile/Roaming/CodeRush for VS .NET/
+userprofile/Roaming/Crayon Physics Deluxe/
+userprofile/Roaming/Dark Sector/
+userprofile/Roaming/AtomZombieData/
+userprofile/Roaming/Empty Clip Studios/Symphony/
+userprofile/Roaming/Faerie Solitaire/
+userprofile/Roaming/GameMaker-Studio/
+userprofile/Roaming/Warner Bros. Interactive Entertainment/LEGO The Lord of the Rings/
+userprofile/Roaming/Yuuguu/
+userprofile/Roaming/Kalypso Media/Dungeons/
+userprofile/Roaming/Zen of Sudoku/
+userprofile/Roaming/StealthBastard*
+userprofile/Roaming/NVIDIA/
+userprofile/Roaming/Quest Software/Toad for MySQL Freeware 4.6/
+userprofile/Roaming/TS3Client/cache/
+userprofile/Roaming/Prime World Defenders/
+userprofile/Roaming/Basilisk Games/Book 2 Saved Games/
+userprofile/Roaming/tangible T4 Editor 2010/Cache/
+userprofile/Roaming/Ubisoft/ANNO 2070/Cache/
+userprofile/Roaming/Ubisoft/ANNO 2070/
+userprofile/Roaming/RigNRoll_usa_ws/
+userprofile/Roaming/MinMaxGames/SpacePiratesAndZombies/
+userprofile/Roaming/runic games/torchlight/
+userprofile/Roaming/Mozilla/Firefox/Profiles/
+userprofile/Roaming/Firefly Studios/Stronghold Kingdoms/
+userprofile/Roaming/OBS/shaderCache/
+userprofile/Roaming/Subversion/auth/
+userprofile/Roaming/Winamp/
+userprofile/Roaming/Unity/Asset Store/
+userprofile/Roaming/Apple Computer/Logs/
+userprofile/Roaming/MonoDevelop-Unity-2.8/
+userprofile/Roaming/Home/ShowTrackerSqlServer.*
+userprofile/Roaming/InstallShield Installation Information/
+userprofile/Roaming/ReactGames/ArchonPC/
+userprofile/Roaming/Unity/
+userprofile/Roaming/Kalypso Media/Dungeons - The Dark Lord Demo/
+userprofile/Roaming/NationRed/
+userprofile/Roaming/Ubisoft/Assassin's Creed Revelations/
+userprofile/Roaming/Beat Hazard/
 userprofile/appdata/roaming/GitExtensions/GitExtensions/GitExtensions.settings.backup
 userprofile/appdata/roaming/Macromedia/
 userprofile/appdata/roaming/Glimpse/
@@ -112,13 +161,89 @@ userprofile/appdata/roaming/Sublime Text 2/Packages/*
 !userprofile/appdata/roaming/Sublime Text 2/Packages/User
 userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.cache
 userprofile/appdata/roaming/Sublime Text 2/Packages/User/Package Control.last-run
+userprofile/Roaming/ImaginaryDevelopment/StarfleetCommander.*
+userprofile/Roaming/WindSolutions/CopyTransControlCenter/
 userprofile/appdata/roaming/Microsoft/Internet Explorer/
 userprofile/appdata/roaming/Codealike/TrackerCache/
-userprofile/appdata/roaming/winscp.rnd
+userprofile/Roaming/ZombieDriver/
+userprofile/Roaming/com.cipherprime.auditorium/
 userprofile/appdata/roaming/GitHub/*.db
+userprofile/Roaming/IGN_DLM/
 userprofile/Roaming/Cypress/
+userprofile/Roaming/DefendersQuest/
+userprofile/Roaming/8BitMMO/
+userprofile/Roaming/VertexDispenser/
 userprofile/Roaming/LINQPad/RecentQueries.txt
 userprofile/Roaming/Telerik/
 userprofile/Roaming/bower/cache/
 userprofile/Roaming/Sublime Text 3/Backup/
 userprofile/Roaming/Sublime Text 3/Packages/
+userprofile/Roaming/DivX/
+userprofile/Roaming/Dwarfs/
+userprofile/Roaming/LINQPad/RecentServers.txt
+userprofile/Roaming/LINQPad/RecentQueries.txt
+userprofile/Roaming/Notepad++/
+userprofile/Roaming/M8 Software/Spartan_Data/
+userprofile/Roaming/Uniblue/RegistryBooster/
+userprofile/Roaming/Sword of the Stars - The Pit/
+userprofile/Roaming/EdgeOfSpace/
+
+userprofile/Roaming/NCSOFT/WildStar
+My Documents/WB Games/Batman Arkham City/
+My Documents/AlienShooter2 Conscription Saves/
+My Documents/Alpha Protocol/
+My Documents/My Games/Path of Exile/
+My Documents/My Games/Skyrim/
+My Documents/My Games/Blacklight-Tango Down/
+My Documents/My Games/Runic Games/Torchlight 2/
+My Documents/My Games/
+My Documents/StarCraft II/
+My Documents/chat/
+My Documents/hyperbol/
+My Documents/Records/
+My Documents/Be*
+My Documents/BYOND/
+My Documents/Impire/
+My Documents/LOLReplay/
+My Documents/GameMaker/Backups/
+My Documents/My Web Sites/
+My Documents/Heroes of the Storm/
+My Documents/DEV/unf bkp/
+My Documents/GameMaker/Projects/
+My Documents/Gaslamp Games/Dungeons of Dredmor/
+My Documents/Neverwinter Nights 2/
+My Documents/majesty2/
+My Documents/Saved Games/
+My Documents/SavedGames/
+My Documents/Square Enix/
+My Documents/GameMaker/Cache/
+My Documents/The Witcher/
+My Documents/DEV/
+My Documents/Presentationish/
+My Documents/Hitman Blood Money/
+My Documents/Crayon Physics Deluxe/
+My Documents/Dust/
+My Documents/DeadIsland/
+My Documents/BioWare/
+userprofile/Roaming/Sublime Text 2/Packages/User/Package Control.cache/
+My Documents/Microsoft Solver Foundation/Samples/
+My Documents/PlanetExplorers/
+My Documents/Work Item Templates/
+My Documents/EA Games/
+userprofile/Roaming/Mozilla/
+My Documents/Dungeon of the Endless/Temporary Files/
+My Documents/4A Games/Metro 2033/
+My Documents/Grotesque-Tactics/
+My Documents/VVVVVV/
+userprofile/Roaming/OBS/logs/
+userprofile/Roaming/3909/
+userprofile/Roaming/TS3Client/
+userprofile/Roaming/winscp.rnd
+My Documents/Giana Sisters - Twisted Dreams/
+My Documents/ARES/
+My Documents/NIGORO/
+userprofile/Roaming/FEZ/
+My Documents/Skullgirls/
+My Documents/Android/ndk/
+userprofile/Roaming/Andy/
+userprofile/Roaming/SolForge/

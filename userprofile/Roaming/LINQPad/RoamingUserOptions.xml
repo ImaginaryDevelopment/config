@@ -5,4 +5,5 @@
   <MaxQueryRows>1000</MaxQueryRows>
   <ShowLineNumbersInEditor>true</ShowLineNumbersInEditor>
   <UseStableOutputAssemblyName>true</UseStableOutputAssemblyName>
+  <NoNativeKeysQuestion>true</NoNativeKeysQuestion>
 </UserOptions>

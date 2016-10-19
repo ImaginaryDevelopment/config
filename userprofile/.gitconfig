@@ -4,15 +4,19 @@
 	unpushed = log --branches --not --remotes --oneline --simplify-by-decoration --decorate
 [merge]
 	tool = kdiff3
-[mergetool "kdiff3"]
-	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
+[alias]
+	unpushed = log --branches --not --remotes --oneline --simplify-by-decoration --decorate
+[core]
+	editor = \"C:/Program Files (x86)/GitExtensions/GitExtensions.exe\" fileeditor
+	name = Brandon D'Imperio
+	email = imaginarydevelopment@googlemail
 [diff]
 	tool = kdiff3
 	guitool = kdiff3
 [difftool "kdiff3"]
-	path = C:/Program Files (x86)/KDiff3/kdiff3.exe
-[core]
-	editor = \"C:/Program Files (x86)/GitExtensions/GitExtensions.exe\" fileeditor
+	path = c:/Program Files (x86)/KDiff3/kdiff3.exe
+[mergetool "kdiff3"]
+	path = c:/Program Files (x86)/KDiff3/kdiff3.exe
 	autocrlf = false
 [credential]
 	helper = !\\\"C:/Program Files (x86)/GitExtensions/GitCredentialWinStore/git-credential-winstore.exe\\\"

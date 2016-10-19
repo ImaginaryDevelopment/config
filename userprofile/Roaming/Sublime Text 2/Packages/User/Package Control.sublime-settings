@@ -2,7 +2,16 @@
 	"installed_packages":
 	[
 		"Alignment",
+		"ApplySyntax",
+		"Browser Refresh",
+		"CoffeeScript",
 		"Git",
-		"JsFormat"
+		"GitGutter",
+		"JsFormat",
+		"JSLint",
+		"Package Control",
+		"Sublime-HTMLPrettify",
+		"SublimeOnSaveBuild",
+		"Theme - Soda"
 	]
 }

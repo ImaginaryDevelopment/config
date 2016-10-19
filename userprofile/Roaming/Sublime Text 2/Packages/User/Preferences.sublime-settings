@@ -2,6 +2,8 @@
 	"font_size": 13,
 	"ignored_packages":
 	[
-		"Vintage"
+		"JsFormat",
+		"Vintage",
+		"JSLint"
 	]
 }
